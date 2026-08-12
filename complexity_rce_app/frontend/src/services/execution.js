@@ -10,7 +10,7 @@ const api = axios.create({
 const get_new_session_id = async () => {
   try {
     const request = api.get('/get-session-id/')
-    return request.then(respons => respons.data.user_id)
+    return request.then(respons => respons.data.session_id)
   } catch (error) {
     console.error("Error fetching session ID:", error)
     throw error
