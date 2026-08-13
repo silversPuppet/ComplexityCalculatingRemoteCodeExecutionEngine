@@ -36,6 +36,7 @@ app.add_middleware(
 @app.get("/get-session-id/", tags=["session"])
 async def get_session_id(request: Request):
     if "session_id" not in request.session:
+        #Generate unique session id to keep track of which code and complexity belongs to which user
         request.session["session_id"] = str(uuid.uuid4())
     return {"session_id": request.session["session_id"]}
 
