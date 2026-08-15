@@ -60,7 +60,11 @@ def create_python_container(user_execute: communicationClasses.TaskRequest):
         cpu_quota=50000, #50ms 
         cpu_period=100000, #100ms  #TODO: Verify these are reasonable cpu constraints (numbers taken from internet)
         
+        read_only=True,
+        tmpfs={"/tmp": "size=32m,exec,mode=1777"}, #read-only root folder + limited writable space 
         
+        cap_drop=["ALL"], #No Kernel capabilities
+        security_opt=["no-new-privileges:true"],
     )  
     python_input_output_block = user_code_modifiers["python"]
     script_content = user_execute.code + python_input_output_block
