@@ -1,81 +1,79 @@
 import docker
+from docker.types import Ulimit
 import tarfile 
 import io
 import app.modules.ComplexityAnalysis.general_complexity_analysis as general_complexity_analysis
+import app.modules.comunicationClasses as communicationClasses
 
-class coreLogic:
-    
-    #client = docker.from_env()
-    
-    execute: dict[str, str] = {
-        "code": "",
-        "input": "",  
-        "input_type": "",
-        "language": "python",
-    }
-    
-    result = {
-            "output": "",
-            "complexity": "",  
-            "dynamic_data_points": [],
-            "estimated_function": "",
-            "certainty": "",
-            "analysis_strength": "", #Whether or not static-analysis was able to be used
-            "session_id": ""
-    }
-    
-    user_code_modifiers = {"python":  
-    '''import sys, time, json
-    if __name__ == "__main__":
-      n = json.load(sys.stdin)
+client = docker.from_env()
 
-      # actual timed run
-      t_start = time.perf_counter()
-      result = main(n)
-      t_end = time.perf_counter()
-      elapsed = t_end - t_start
+user_code_modifiers = {"python":  
+'''import sys, time, json
+if __name__ == "__main__":
+    n = json.load(sys.stdin)
 
-      print(json.dumps({
-          "result": result,
-          "elapsed": elapsed
-    }))'''}
+    # actual timed run
+    t_start = time.perf_counter()
+    result = main(n)
+    t_end = time.perf_counter()
+    elapsed = t_end - t_start
+
+    print(json.dumps({
+        "result": result,
+        "elapsed": elapsed
+}))'''}
+
+def execute_and_analyse_userScript(user_execute: communicationClasses.TaskRequest, session_id, task_id):
+    container = create_contrainer(user_execute)
+    result = communicationClasses.ExecutionAnalysisOutput(session_id, task_id)
+    result.setOutput(general_complexity_analysis.analyse(
+        container, 
+        user_execute.code, 
+        user_execute.input, 
+        user_execute.input_type,
+        ))
+    container.stop()
+    container.remove()
+    return result
+
+def create_contrainer(user_execute):
+    match user_execute["language"]:
+        case "python":
+            create_python_container(user_execute)
+            return
+        case "c++":
+            raise ValueError #maybe implement later?
+        case _:
+            raise ValueError
+        
+def create_python_container(user_execute: communicationClasses.TaskRequest):
+    print("creating container with python.")
+    container = client.containers.run(
+        "python:3.11-slim",
+        command="sleep infinity",   
+        detach=True,
+        runtime="runsc", #gvisor for better isolation
+        network_mode="none",
+        mem_limit= "128m", #megabites
+        memswap_limit= "128m",
+        
+        cpu_quota=50000, #50ms 
+        cpu_period=100000, #100ms  #TODO: Verify these are reasonable cpu constraints (numbers taken from internet)
+        
+        
+    )  
+    python_input_output_block = user_code_modifiers["python"]
+    script_content = user_execute.code + python_input_output_block
     
-    def execute_and_analyse_userScript(self, user_execute):
-        container = self.create_contrainer(user_execute)
-        result = general_complexity_analysis.analyse(container, user_execute["code"], user_execute["input"], user_execute["input_type"])
-        container.stop()
-        container.remove()
-        return result
+    #io:BytesIO() only accepts bytes ane tarinfo.size needs exact byte length
+    script_bytes = script_content.encode("utf-8")
     
-    def create_contrainer(self, user_execute):
-        match user_execute["language"]:
-            case "python":
-                self.create_python_container(self, user_execute)
-                return
-            case "c++":
-                raise ValueError #maybe implement later?
-            case _:
-                raise ValueError
-            
-    def create_python_container(self, user_execute):
-        container = self.client.containers.run(
-            "python:3.11-slim",
-            command="sleep infinity",   # keep it alive so you can exec into it
-            detach=True
-        )  
-        # 1. Your script content, with whatever text block you want to inject
-        python_input_output_block = self.user_code_modifiers["python"]
-        script_content = user_execute["code"] + python_input_output_block
+    #RAM stored tar archive
+    tar_stream = io.BytesIO()
+    with tarfile.open(fileobj=tar_stream, mode="w") as tar:
+        tarinfo = tarfile.TarInfo(name="main.py")
+        tarinfo.size = len(script_bytes)
         
-        #io:BytesIO() only accepts bytes ane tarinfo.size needs exact byte length
-        script_bytes = script_content.encode("utf-8")
-        
-        #RAM stored tar archive
-        tar_stream = io.BytesIO()
-        with tarfile.open(fileobj=tar_stream, mode="w") as tar:
-            tarinfo = tarfile.TarInfo(name="main.py")
-            tarinfo.size = len(script_bytes)
-            
-        tar.addfile(tarinfo, tar_stream)
-        
-        return
+    tar.addfile(tarinfo, tar_stream)
+    
+    return

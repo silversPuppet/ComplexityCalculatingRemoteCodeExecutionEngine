@@ -5,6 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 import uuid
 
 import app.modules.coreLogic as coreLogic
+import app.modules.comunicationClasses as comunicationClasses
 
 app = FastAPI()
 
@@ -33,6 +34,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
 @app.get("/get-session-id/", tags=["session"])
 async def get_session_id(request: Request):
     if "session_id" not in request.session:
@@ -40,17 +42,19 @@ async def get_session_id(request: Request):
         request.session["session_id"] = str(uuid.uuid4())
     return {"session_id": request.session["session_id"]}
 
-@app.post("/start-task/", tags=["task"])
-async def start_task(session_id: str, data: str):
+@app.post("/start-execute-analysis-task/", tags=["task"])
+async def start_task(data: comunicationClasses.TaskRequest):
     task_id = str(uuid.uuid4())
-    tasks_db[task_id] = {"session_id": session_id, "status": "pending", "result": None}
+    print("started task with taskID: " + task_id + "and with data: " + data)
+    tasks_db[task_id] = {"session_id": data.session_id, "status": "pending", "result": None}
 
     def run_task():
+        result = coreLogic.execute_and_analyse_userScript(data, data.session_id, task_id)
         tasks_db[task_id]["status"] = "completed"
-        tasks_db[task_id]["result"] = f"Processed {data} for session {session_id}"
+        tasks_db[task_id]["result"] = f"Processed {data} for session {data.session_id}"
 
     executor.submit(run_task)
-    return {"task_id": task_id, "session_id": session_id}
+    return {"task_id": task_id, "session_id": data.session_id}
 
 @app.get("/task-status/{task_id}", tags=["task"])
 async def get_task_status(task_id: str, session_id: str):

@@ -9,12 +9,27 @@ const api = axios.create({
 
 const get_new_session_id = async () => {
   try {
-    const request = api.get('/get-session-id/')
-    return request.then(respons => respons.data.session_id)
+    const response = await api.get('/get-session-id/')
+    return response.data.session_id
   } catch (error) {
     console.error("Error fetching session ID:", error)
     throw error
   }
 }
 
-export default{get_new_session_id}
+const start_execute_analysis_task = async (session_id, code, input, input_type, language) => {
+  try{
+    const response = await api.post('/start-execute-analysis-task/', {
+      session_id,
+      code, input,
+      input_type,
+      language
+    })
+    return response.data
+  }catch (error){
+    console.error("Error starting a new code execution/analysis task:", error)
+    throw error
+  }
+}
+
+export default{get_new_session_id, start_execute_analysis_task}
