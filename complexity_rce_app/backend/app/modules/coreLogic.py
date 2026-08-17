@@ -26,7 +26,7 @@ if __name__ == "__main__":
 def execute_and_analyse_userScript(user_execute: communicationClasses.TaskRequest, session_id, task_id):
     container = create_contrainer(user_execute)
     result = communicationClasses.ExecutionAnalysisOutput(session_id, task_id)
-    result.setOutput(general_complexity_analysis.analyse(
+    result.setOutput(general_complexity_analysis.analysse_full_complexity(
         container, 
         user_execute.code, 
         user_execute.input, 

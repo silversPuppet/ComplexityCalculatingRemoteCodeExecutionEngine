@@ -21,7 +21,8 @@ const start_execute_analysis_task = async (session_id, code, input, input_type, 
   try{
     const response = await api.post('/start-execute-analysis-task/', {
       session_id,
-      code, input,
+      code, 
+      input,
       input_type,
       language
     })

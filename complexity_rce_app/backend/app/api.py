@@ -45,7 +45,8 @@ async def get_session_id(request: Request):
 @app.post("/start-execute-analysis-task/", tags=["task"])
 async def start_task(data: comunicationClasses.TaskRequest):
     task_id = str(uuid.uuid4())
-    print("started task with taskID: " + task_id + "and with data: " + data)
+    print("started task with taskID: " + task_id + "and with data: ")
+    print(data)
     tasks_db[task_id] = {"session_id": data.session_id, "status": "pending", "result": None}
 
     def run_task():

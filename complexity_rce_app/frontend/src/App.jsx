@@ -2,12 +2,17 @@ import { useState, useEffect } from 'react'
 import codeExecutionService from "./services/execution"
 
 function App() {
-   const [session_ID, setSession_ID] = useState("no session ID")
+  const [session_ID, setSession_ID] = useState("no session ID")
 
-   const [code, setCode] = useState("")
-   const [input, setInput] = useState("")
-   const [input_type, setInput_type] = useState("int")
-   const [language, setLanguage] = useState("python")
+  const [code, setCode] = useState("")
+  const [input, setInput] = useState("")
+  const [input_type, setInput_type] = useState("int")
+  const [language, setLanguage] = useState("python")
+
+  const [output, setOutput] = useState("")
+  const [complexity, setComplexity] = useState("???")
+  const [certainty, setCertainty] = useState(0)
+  const [analysisStrength, setAnalysisStrength] = useState("")
 
   const uuid_hook = () => {
     console.log("effect hook")
@@ -21,21 +26,19 @@ function App() {
 
   const executeAnalyseCode = event => {
     event.preventDefault()
-    const codeTaskRequest = {
-      session_id: session_ID,
-      code: code,
-      input: input,
-      input_type: input_type,
-      language: language
-    }
+    codeExecutionService.start_execute_analysis_task(session_ID, code, input, input_type, language)
+      .then(result => {
+        setOutput(result.output)
+      })
   }
 
   return (
     <div>
       <h1>Complexity estimating RCE</h1>
-      <div onSubmit={executeAnalyseCode}>
+      <div>
+        <h2>Input</h2>
         <label>We have: {session_ID}</label>
-        <form>
+        <form  onSubmit={executeAnalyseCode}>
           Language: 
           <select defaultValue={language} onChange={e => setLanguage(e.target.value)}>
             <option value="python">Python</option>
@@ -48,6 +51,7 @@ function App() {
           </select>
           Input:
           <input placeholder="..." onChange={e => setInput(e.target.value)}/>
+          <button type="submit">Submit</button>
           <br />
           <textarea 
             name="postContent" 
@@ -56,6 +60,13 @@ function App() {
             defaultValue={code}
           />
         </form>
+      </div>
+      <div>
+        <h2>Output</h2>
+        <p>Code Output: {output}</p>
+        <p>Estimated complexity: {complexity}</p>
+        <p>Certainty in estimate: {certainty} %</p>
+        <p>Analysis strength: {analysisStrength}</p>
       </div>
     </div>
   )
