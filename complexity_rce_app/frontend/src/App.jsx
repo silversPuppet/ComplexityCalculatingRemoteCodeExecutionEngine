@@ -4,8 +4,8 @@ import codeExecutionService from "./services/execution"
 function App() {
   const [session_ID, setSession_ID] = useState("no session ID")
 
-  const [code, setCode] = useState("")
-  const [input, setInput] = useState("")
+  const [code, setCode] = useState("def __main__(n):\n return n\n")
+  const [input, setInput] = useState("0")
   const [input_type, setInput_type] = useState("int")
   const [language, setLanguage] = useState("python")
 
@@ -50,7 +50,7 @@ function App() {
             <option value="str">String</option>
           </select>
           Input:
-          <input placeholder="..." onChange={e => setInput(e.target.value)}/>
+          <input defaultValue={input} onChange={e => setInput(e.target.value)}/>
           <button type="submit">Submit</button>
           <br />
           <textarea 

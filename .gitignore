@@ -2,3 +2,6 @@
 /.DS_Store
 /complexity_rce_app/backend/venv
 /complexity_rce_app/backend/venv/
+/.vscode
+/complexity_rce_app/backend/__pycache__
+/complexity_rce_app/backend/app/__pycache__

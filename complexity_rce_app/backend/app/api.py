@@ -15,7 +15,6 @@ origins = [
 ]
 
 
-app = FastAPI()
 executor = ThreadPoolExecutor()
 tasks_db = {} 
 
@@ -50,12 +49,14 @@ async def start_task(data: comunicationClasses.TaskRequest):
     tasks_db[task_id] = {"session_id": data.session_id, "status": "pending", "result": None}
 
     def run_task():
+        print("Running task!" + task_id)
         result = coreLogic.execute_and_analyse_userScript(data, data.session_id, task_id)
         tasks_db[task_id]["status"] = "completed"
         tasks_db[task_id]["result"] = f"Processed {data} for session {data.session_id}"
+        return result
 
     executor.submit(run_task)
-    return {"task_id": task_id, "session_id": data.session_id}
+    return {"task_id": task_id, "status": "pending"}
 
 @app.get("/task-status/{task_id}", tags=["task"])
 async def get_task_status(task_id: str, session_id: str):

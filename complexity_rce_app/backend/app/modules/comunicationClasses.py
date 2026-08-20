@@ -21,6 +21,7 @@ class ExecutionAnalysisOutput():
     session_id: str
     
     def __init__(self, session_id, task_id):
+        print("Session ID:" + session_id + " Task ID: " + task_id)
         self.session_id = session_id
         self.task_id = task_id
 
