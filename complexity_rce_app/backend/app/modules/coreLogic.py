@@ -32,12 +32,13 @@ def execute_and_analyse_userScript(user_execute: communicationClasses.TaskReques
     container = create_contrainer(user_execute)
     result = communicationClasses.ExecutionAnalysisOutput(session_id, task_id)
     print("starting complexity analysis")
-    result.setOutput(general_complexity_analysis.analyse_full_complexity(
+    output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength = general_complexity_analysis.analyse_full_complexity(
         container, 
         user_execute.code, 
         user_execute.input, 
         user_execute.input_type,
-        ))
+    )
+    result.setOutput(output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength)
     container.stop()
     container.remove()
     return result

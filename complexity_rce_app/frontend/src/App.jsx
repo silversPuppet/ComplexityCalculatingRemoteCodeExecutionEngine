@@ -4,7 +4,7 @@ import codeExecutionService from "./services/execution"
 function App() {
   const [session_ID, setSession_ID] = useState("no session ID")
 
-  const [code, setCode] = useState("def __main__(n):\n return n\n")
+  const [code, setCode] = useState("def main(n):\n return n\n")
   const [input, setInput] = useState("0")
   const [input_type, setInput_type] = useState("int")
   const [language, setLanguage] = useState("python")
