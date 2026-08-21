@@ -86,6 +86,7 @@ function App() {
             rows={17} 
             cols={57} 
             defaultValue={code}
+            onChange={e => setCode(e.target.value)}
           />
         </form>
       </div>

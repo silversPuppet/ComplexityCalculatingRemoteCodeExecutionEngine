@@ -12,7 +12,8 @@ client = docker.from_env()
 print("Is Docker Connected: " + str(client.ping()))  
 
 user_code_modifiers = {"python":  
-'''import sys, time, json
+'''\n
+import sys, time, json
 if __name__ == "__main__":
     n = json.load(sys.stdin)
 
