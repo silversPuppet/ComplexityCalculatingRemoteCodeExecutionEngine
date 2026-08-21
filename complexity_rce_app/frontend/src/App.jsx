@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import codeExecutionService from "./services/execution"
 
 function App() {
-  const [session_ID, setSession_ID] = useState("no session ID")
+  const [session_id, setSession_id] = useState("no session ID")
 
   const [code, setCode] = useState("def main(n):\n return n\n")
   const [input, setInput] = useState("0")
@@ -14,11 +14,13 @@ function App() {
   const [certainty, setCertainty] = useState(0)
   const [analysisStrength, setAnalysisStrength] = useState("")
 
+  const [currentTask, setCurrentTask] = useState("")
+
   const uuid_hook = () => {
     console.log("effect hook")
     codeExecutionService.get_new_session_id()
       .then(uuid => {
-        setSession_ID(uuid)
+        setSession_id(uuid)
       })
   }
 
@@ -26,10 +28,35 @@ function App() {
 
   const executeAnalyseCode = event => {
     event.preventDefault()
-    codeExecutionService.start_execute_analysis_task(session_ID, code, input, input_type, language)
-      .then(result => {
-        setOutput(result.output)
-      })
+    try{
+      codeExecutionService.start_execute_analysis_task(session_id, code, input, input_type, language)
+        .then(result => {
+          console.log(result)
+          setCurrentTask(result.task_id)
+          getCurrentTaskStatus(result.task_id)
+        })
+        
+    }
+    catch (error){
+      console.log("Failed to execute and analyse user submitted code: ", error)
+    }
+  }
+
+  const getCurrentTaskStatus = (task_id) => {
+    try{
+      codeExecutionService.get_task_status(task_id, session_id)
+        .then(result => {
+          console.log(result)
+          setOutput(result.output)
+          setComplexity(result.complexity)
+          setCertainty(result.certainty)
+          setAnalysisStrength(result.analysis_strength)
+        })
+        
+    }
+    catch (error){
+      console.log("Failed to acquire task status: ", error)
+    }
   }
 
   return (
@@ -37,7 +64,8 @@ function App() {
       <h1>Complexity estimating RCE</h1>
       <div>
         <h2>Input</h2>
-        <label>We have: {session_ID}</label>
+        <p>Session: {session_id}</p>
+        <p>Current Task: {currentTask}</p>
         <form  onSubmit={executeAnalyseCode}>
           Language: 
           <select defaultValue={language} onChange={e => setLanguage(e.target.value)}>

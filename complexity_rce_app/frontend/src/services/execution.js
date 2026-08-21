@@ -16,6 +16,27 @@ const get_new_session_id = async () => {
     throw error
   }
 }
+ 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+                                        //interval in seconds -> 5min max
+const get_task_status = async (task_id, session_id, { interval = 5000, maxAttempts = 60 } = {}) => {
+  for(let attempt = 0; attempt < maxAttempts; attempt++) {
+    console.log(`Getting Task Status ${task_id}`)
+    const response = await api.get(`${baseUrl}task-status/${task_id}`, {
+      params: {session_id}
+    })
+
+    if(response.data.status === "completed") {
+      return response.data.result
+    }
+    if(response.data.status === "failed") {
+      throw new Error(`Task ${task_id} failed: ${data.result}`)
+    }
+    await sleep(interval)
+  }
+  throw new Error(`Task ${task_id} timed out after ${maxAttempts} attempts`)
+};
 
 const start_execute_analysis_task = async (session_id, code, input, input_type, language) => {
   try{
@@ -33,4 +54,4 @@ const start_execute_analysis_task = async (session_id, code, input, input_type, 
   }
 }
 
-export default{get_new_session_id, start_execute_analysis_task}
+export default{get_new_session_id, start_execute_analysis_task, get_task_status}

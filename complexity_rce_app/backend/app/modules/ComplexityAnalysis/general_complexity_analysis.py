@@ -15,10 +15,11 @@ def analyse_full_complexity(container, code, input_value, input_type):
         estimated_function = "14"
         certainty = "100"
         analysis_strength = "strong"
+        return output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength
     except:
         raise Exception("User script failed to execute.")
         
-    return output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength
+    
 
 def complexity_comparison():
     return
