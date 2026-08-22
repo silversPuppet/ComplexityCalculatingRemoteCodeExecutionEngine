@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./backend
+    #Mounts the hosts docker socket into the backend container for code execution (does theoretically grants root-equivalent control if the backend is compromised)
+    #Hinges on configuring runsc environments for the hosts docker daemon  
+    #environment:
+    #  - DOCKER_RUNTIME=runsc #not available on macos
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend

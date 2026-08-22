@@ -11,7 +11,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "localhost:5173"
+    #TODO: Change to website domain for production
 ]
 
 

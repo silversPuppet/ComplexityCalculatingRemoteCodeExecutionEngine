@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const baseUrl = 'http://127.0.0.1:8000/'
+const baseUrl = 'http://localhost:8000/' //testing with npm run dev
+//const baseUrl = 'http://backend:8000' //Docker Container 
 
 const api = axios.create({
   baseURL: baseUrl,
