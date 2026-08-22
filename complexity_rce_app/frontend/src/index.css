@@ -1,0 +1,18 @@
+body {
+  background-color: #282c34;
+  color: white;
+  padding: 40px;
+  font-family: Arial;
+  text-align: left;
+}
+
+/* CONTENT */
+div.content {
+    display: flex;
+    gap: 1rem;
+}
+
+.content > * {
+    flex: 1;
+    text-align: left;
+}

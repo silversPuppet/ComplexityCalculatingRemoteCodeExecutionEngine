@@ -1,20 +1,17 @@
 import { useState, useEffect } from 'react'
 import codeExecutionService from "./services/execution"
+import Input from "./components/Input"
+import Output from './components/Output'
 
 function App() {
   const [session_id, setSession_id] = useState("no session ID")
 
-  const [code, setCode] = useState("#necessary for the server to execute user code properly \ndef main(n):\n return n\n")
-  const [input, setInput] = useState("0")
-  const [input_type, setInput_type] = useState("int")
-  const [language, setLanguage] = useState("python")
+  const [currentTask, setCurrentTask] = useState("")
 
   const [output, setOutput] = useState("")
   const [complexity, setComplexity] = useState("???")
   const [certainty, setCertainty] = useState(0)
   const [analysisStrength, setAnalysisStrength] = useState("")
-
-  const [currentTask, setCurrentTask] = useState("")
 
   const uuid_hook = () => {
     console.log("effect hook")
@@ -26,20 +23,13 @@ function App() {
 
   useEffect(uuid_hook, []) 
 
-  const executeAnalyseCode = event => {
-    event.preventDefault()
-    try{
+  const executeAnalyseCode = ({code, input, input_type, language}) => {
       codeExecutionService.start_execute_analysis_task(session_id, code, input, input_type, language)
         .then(result => {
           console.log(result)
           setCurrentTask(result.task_id)
           getCurrentTaskStatus(result.task_id)
-        })
-        
-    }
-    catch (error){
-      console.log("Failed to execute and analyse user submitted code: ", error)
-    }
+        }).catch (error => console.log("Failed to execute and analyse user submitted code: ", error))
   }
 
   const getCurrentTaskStatus = (task_id) => {
@@ -55,7 +45,7 @@ function App() {
             setAnalysisStrength(result.analysis_strength)
           }else if(response.status === "failed"){
             console.log("Error executing user script:\n" + result)
-            setOutput("Error executing user script:\n" + result)
+            setOutput(result)
             setComplexity("???")
             setCertainty(0)
             setAnalysisStrength("")
@@ -73,40 +63,11 @@ function App() {
   return (
     <div>
       <h1>Complexity estimating RCE</h1>
-      <div>
-        <h2>Input</h2>
-        <p>Session: {session_id}</p>
-        <p>Current Task: {currentTask}</p>
-        <form  onSubmit={executeAnalyseCode}>
-          Language: 
-          <select defaultValue={language} onChange={e => setLanguage(e.target.value)}>
-            <option value="python">Python</option>
-            <option value="c++">c++ (to be added)</option>
-          </select>
-          Input type: 
-          <select defaultValue={input_type} onChange={e => setInput_type(e.target.value)}>
-            <option value="int">Integer</option>
-            <option value="str">String</option>
-          </select>
-          Input:
-          <input defaultValue={input} onChange={e => setInput(e.target.value)}/>
-          <button type="submit">Submit</button>
-          <br />
-          <textarea 
-            name="postContent" 
-            rows={17} 
-            cols={57} 
-            defaultValue={code}
-            onChange={e => setCode(e.target.value)}
-          />
-        </form>
-      </div>
-      <div>
-        <h2>Output</h2>
-        <p>Code Output: {output}</p>
-        <p>Estimated complexity: {complexity}</p>
-        <p>Certainty in estimate: {certainty} %</p>
-        <p>Analysis strength: {analysisStrength}</p>
+      <p>Session: {session_id}</p>
+      <p>Current Task: {currentTask}</p>
+      <div className="content">
+        <Input onExecute={executeAnalyseCode} />
+        <Output output={output} complexity={complexity} certainty={certainty} analysisStrength={analysisStrength}  />
       </div>
     </div>
   )
