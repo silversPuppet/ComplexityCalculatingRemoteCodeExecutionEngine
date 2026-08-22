@@ -4,7 +4,7 @@ import codeExecutionService from "./services/execution"
 function App() {
   const [session_id, setSession_id] = useState("no session ID")
 
-  const [code, setCode] = useState("def main(n):\n return n\n")
+  const [code, setCode] = useState("#necessary for the server to execute user code properly \ndef main(n):\n return n\n")
   const [input, setInput] = useState("0")
   const [input_type, setInput_type] = useState("int")
   const [language, setLanguage] = useState("python")
@@ -45,12 +45,23 @@ function App() {
   const getCurrentTaskStatus = (task_id) => {
     try{
       codeExecutionService.get_task_status(task_id, session_id)
-        .then(result => {
-          console.log(result)
-          setOutput(result.output)
-          setComplexity(result.complexity)
-          setCertainty(result.certainty)
-          setAnalysisStrength(result.analysis_strength)
+        .then(response => {
+          let result = response.result
+          if(response.status === "completed"){
+            console.log(result)
+            setOutput(result.output)
+            setComplexity(result.complexity)
+            setCertainty(result.certainty)
+            setAnalysisStrength(result.analysis_strength)
+          }else if(response.status === "failed"){
+            console.log("Error executing user script:\n" + result)
+            setOutput("Error executing user script:\n" + result)
+            setComplexity("???")
+            setCertainty(0)
+            setAnalysisStrength("")
+          }else{
+            throw new Error("Task status could not be resolved.")
+          }
         })
         
     }

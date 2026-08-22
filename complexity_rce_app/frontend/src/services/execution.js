@@ -28,10 +28,10 @@ const get_task_status = async (task_id, session_id, { interval = 5000, maxAttemp
     })
 
     if(response.data.status === "completed") {
-      return response.data.result
+      return response.data
     }
     if(response.data.status === "failed") {
-      throw new Error(`Task ${task_id} failed: ${data.result}`)
+      return response.data
     }
     await sleep(interval)
   }

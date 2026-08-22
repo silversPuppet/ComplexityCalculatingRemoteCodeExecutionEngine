@@ -58,6 +58,7 @@ async def start_task(data: comunicationClasses.TaskRequest):
             tasks_db[task_id]["status"] = "completed"
             tasks_db[task_id]["result"] = result
         except Exception as e:
+            print("caught Exception ")
             tasks_db[task_id]["status"] = "failed"
             tasks_db[task_id]["result"] = str(e)
             
