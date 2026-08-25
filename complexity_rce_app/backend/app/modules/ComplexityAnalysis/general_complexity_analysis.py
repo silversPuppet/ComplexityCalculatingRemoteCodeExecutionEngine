@@ -1,11 +1,14 @@
 import subprocess, json
-
+import ComplexityAnalysis.dynamic_analysis 
 
 def analyse_full_complexity(container, code, input_value, input_type):
     try:
         #execute user code once to prove it works and further tests are possible 
+        script_path="/tmp/main.py"
         print("executing User script")
-        result, elapsed = run_with_input(container.short_id, "/tmp/main.py", convert_input_value_to_type(input_value, input_type))
+        result, elapsed = run_with_input(container.short_id, script_path, convert_input_value_to_type(input_value, input_type))
+        dynamicComplexity, dynamic_data_points, estimated_function = dynamic_analysis.calculate_dynamic_complexity(container, script_path, input_type)
+        
         
             #Later try analyse the code
             #temporary value assignment 
