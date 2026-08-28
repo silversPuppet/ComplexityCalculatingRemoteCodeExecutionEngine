@@ -4,6 +4,7 @@ import math
 import docker
 import subprocess, json
 import random
+import string
 
 client = docker.from_env()
 
@@ -45,8 +46,54 @@ def calculate_dynamic_complexity(container, script_path, input_type):
 def convertToBigO():
     return
 
-def execute_script_with_autogenerate_data(container, script_path, input_type):
-    
+def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=5):
+    try:
+        match input_type:
+            case "string":
+                values = [(''.join(random.choices(string.ascii_letters + string.digits, 
+                                                  k=int(math.pow(i, 4))))) for i in range(test_length)]
+            case "int":
+                values = [int(math.pow(i, 5) + random.random()) for i in range(test_length)]
+            case "float":
+                values = [math.pow(i, 5) + random.random() for i in range(test_length)]
+            case "string[]":
+                values = []
+                for i in range (test_length) :
+                    value = [(''.join(random.choices(string.ascii_letters + string.digits, k=int(math.pow(j, 3))))) for j in range(i)]
+                    random.shuffle(value)
+                    values.append(value)
+            case "int[]":
+                values = []
+                for i in range(test_length) :
+                    value = [int(math.pow(j + random.random(), 5)) for j in range(i)]
+                    random.shuffle(value)
+                    values.append(value)
+            case "float[]":
+                values = []
+                for i in range(test_length) :
+                    value = [math.pow(j, 5) + random.random() for j in range(test_length)]
+                    random.shuffle(value)
+                    values.append(value)
+            case "adjacency-matrix":
+                values = []
+                for i in range(n):
+                    matrix = []
+                    for y in range(i):
+                        row = []
+                        for x in range(i):
+                            row.append(int(random.getrandbits(1)))
+                        matrix.append(row)
+                        
+                    values.append(matrix)
+            case _:
+                #TODO: Possibly allow for not using dynamic measuring?
+                raise ValueError("Input Type not supported!")
+        results = fullRun(values)
+        print(results)
+        return results    
+                
+    except:
+        raise
     return n, time 
 
 def fullRun(values, container_id, script_path):
