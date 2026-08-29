@@ -1,4 +1,3 @@
-from general_complexity_analysis import run_with_input
 import scipy
 import math 
 import docker
@@ -126,6 +125,17 @@ def reset_environment(container):
 
     print(exit_code)
     print(output.decode())
+    
+def run_with_input(container_id, script_path, n):
+    proc = subprocess.run(
+        ["docker", "exec", "-i", container_id, "python", script_path],
+        input=json.dumps(n).encode(),
+        capture_output=True,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.decode())
+    output = json.loads(proc.stdout)
+    return output["result"], output["elapsed"]
 
 
 #----Complexity Functiions----

@@ -8,6 +8,8 @@ class TaskRequest():
     input: str
     input_type: str
     language: str
+    dynamic_analysis: bool
+    static_analysis: bool
     
 @dataclass
 class ExecutionAnalysisOutput():

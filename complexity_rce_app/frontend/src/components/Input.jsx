@@ -5,10 +5,12 @@ const Input = ({onExecute}) => {
     const [input, setInput] = useState("0")
     const [input_type, setInput_type] = useState("int")
     const [language, setLanguage] = useState("python")
+    const [analyse_dynamically, setDynamic] = useState(true)
+    const [analyse_statically, setStatic] = useState(true)
 
     const handleSubmit = (event) => {
       event.preventDefault()
-      onExecute({ code, input, input_type, language })
+      onExecute({ code, input, input_type, language, analyse_dynamically, analyse_statically })
     }
 
     return (
@@ -27,6 +29,10 @@ const Input = ({onExecute}) => {
           </select>
           Input:
           <input value={input} onChange={e => setInput(e.target.value)}/>
+          Dynamic Analysis:
+          <input type='checkbox' checked={analyse_dynamically} onChange={e => setDynamic(e.target.checked)} />
+          Static Analysis:
+          <input type='checkbox' checked={analyse_statically}  onChange={e => setStatic(e.target.checked)} />
           <button type="submit">Submit</button>
           <br />
           <textarea 
