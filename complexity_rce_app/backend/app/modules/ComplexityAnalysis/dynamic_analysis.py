@@ -1,5 +1,6 @@
 import scipy
 import math 
+import numpy as np
 import docker
 import subprocess, json
 import random
@@ -22,7 +23,7 @@ def calculate_dynamic_complexity(container, script_path, input_type):
         ("polynomial",  polynomial_progression, 3),
          ("exponential",  exponential_progression, 3)
     ]:
-        params, covariance = scipy.curve_fit(model_func, n, time)
+        params, covariance = scipy.optimize.curve_fit(f=model_func,xdata=n, ydata=time)
         y_predicted = [model_func(ni, *params) for ni in n]
         #Using Reverse Square sum to calculate the difference between measured and predicted data
         rss = sum((ti - yi) ** 2 for ti, yi in zip(time, y_predicted))
@@ -36,16 +37,13 @@ def calculate_dynamic_complexity(container, script_path, input_type):
     best_model = min(predictions, key=lambda name: predictions[name]["aicc"])
     print("Best Model: " + best_model)
     
-    dynamicComplexity = convertToBigO(best_model, [best_model]["params"])
+    dynamicComplexity = best_model
     dynamic_data_points = (n, time)
     estimated_function = (best_model, predictions[best_model]["params"])
     
     return dynamicComplexity, dynamic_data_points, estimated_function
 
-def convertToBigO():
-    return
-
-def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=5):
+def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=6):
     try:
         match input_type:
             case "string":
@@ -87,29 +85,30 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
             case _:
                 #TODO: Possibly allow for not using dynamic measuring?
                 raise ValueError("Input Type not supported!")
-        results = fullRun(values)
-        print(results)
-        return results    
+        n, times = fullRun(values, container, script_path)
+        print("inputs: " + str(n) + "times " + str(times))
+        return n, times    
                 
     except:
         raise
     return n, time 
 
-def fullRun(values, container_id, script_path):
+def fullRun(values, container, script_path):
     random.shuffle(values)
     inputs = []
     times = []
     for n in values:
-        result, duration = medianRunScript(n, container_id)
+        result, duration = medianRunScript(n, container, script_path)
         inputs.append(n)
         times.append(duration)
+    return inputs, times
         
 def medianRunScript(n, container, script_path):
     values = []
     for i in range(3):
         reset_environment(container)
         output, duration = run_with_input(container.short_id, script_path, n)
-        values.append(duration, values)
+        values.append((output, duration))
     
     print(values)
     return sorted(values, key=lambda tupple: tupple[0])[1]
@@ -140,14 +139,14 @@ def run_with_input(container_id, script_path, n):
 
 #----Complexity Functiions----
 
-def constant_progression(c):
+def constant_progression(x,c):
     return c
 
-def logarithmic_progression(n, a, b):
-    return a * math.log(n) + b
+def logarithmic_progression(x, a, b):
+    return a * np.log(x) + b
 
-def polynomial_progression(n, a, k, b):
-    return a * (n ** k) + b
+def polynomial_progression(x, a, k, b):
+    return a * (x ** k) + b
 
-def exponential_progression(n, a, b, c):
-    return a * math.exp(b * n) + c
+def exponential_progression(x, a, b, c):
+    return a * np.exp(b * x) + c

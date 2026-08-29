@@ -53,6 +53,7 @@ async def start_task(data: comunicationClasses.TaskRequest):
     def run_task():
         print("Running task!" + task_id)
         try:
+            print(data)
             result = coreLogic.execute_and_analyse_userScript(data, data.session_id, task_id)
             print("completed task! " + task_id)
             tasks_db[task_id]["status"] = "completed"

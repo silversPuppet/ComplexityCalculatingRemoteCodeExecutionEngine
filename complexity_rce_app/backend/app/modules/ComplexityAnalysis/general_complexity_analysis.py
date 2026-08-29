@@ -12,22 +12,28 @@ def analyse_full_complexity(container, code, input_value, input_type, analyse_dy
         complexity = "N/A"
         dynamic_data_points = [(0,0)]
         estimated_function = "N/A"
-        certainty = "0%"
+        certainty = "0"
         analysis_strength = "extremely weak"
         
         dynamicComplexity = ""
         if(analyse_dynamically):
-            dynamicComplexity, dynamic_data_points, estimated_function = dynamic_analysis.calculate_dynamic_complexity(container, script_path, input_type)
+            dynamicComplexity, dynamic_data_points, dynamic_function = dynamic_analysis.calculate_dynamic_complexity(container, script_path, input_type)
+            analysis_strength = "only dynamically"
+            estimated_function = convert_dynamic_function_to_html(dynamic_function)
             
         if(analyse_statically):
             pass
         
-        combinedComplexity, strength = complexity_comparison()
+        #combinedComplexity, strength = complexity_comparison()
+        print(dynamicComplexity)
+        complexity = dynamicComplexity
         
         return output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength
     except:
         raise 
         
+def convert_dynamic_function_to_html(function):
+    return "N/A"
     
 
 def complexity_comparison():

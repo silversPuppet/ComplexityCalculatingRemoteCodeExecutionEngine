@@ -1,21 +1,20 @@
 from dataclasses import dataclass
-import array
 
 @dataclass
 class TaskRequest():
     session_id: str
     code: str
-    input: str
+    input_value: str
     input_type: str
     language: str
-    dynamic_analysis: bool
-    static_analysis: bool
+    analyse_dynamically: bool
+    analyse_statically: bool
     
 @dataclass
 class ExecutionAnalysisOutput():
     output: str
     complexity: str
-    dynamic_data_points: array 
+    dynamic_data_points: list[tuple[int, float]]
     estimated_function: str
     certainty: str
     analysis_strength: str

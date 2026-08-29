@@ -23,8 +23,8 @@ function App() {
 
   useEffect(uuid_hook, []) 
 
-  const executeAnalyseCode = ({code, input, input_type, language}) => {
-      codeExecutionService.start_execute_analysis_task(session_id, code, input, input_type, language)
+  const executeAnalyseCode = ({code, input_value, input_type, language, analyse_dynamically, analyse_statically}) => {
+      codeExecutionService.start_execute_analysis_task(session_id, code, input_value, input_type, language, analyse_dynamically, analyse_statically)
         .then(result => {
           console.log(result)
           setCurrentTask(result.task_id)

@@ -37,10 +37,10 @@ def execute_and_analyse_userScript(user_execute: communicationClasses.TaskReques
         output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength = general_complexity_analysis.analyse_full_complexity(
             container, 
             user_execute.code, 
-            user_execute.input, 
+            user_execute.input_value, 
             user_execute.input_type,
-            user_execute.dynamic_analysis,
-            user_execute.static_analysis
+            user_execute.analyse_dynamically,
+            user_execute.analyse_statically
         )
         result.setOutput(output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength)
         container.stop()
