@@ -21,7 +21,7 @@ const get_new_session_id = async () => {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
                                         //interval in seconds -> 5min max
-const get_task_status = async (task_id, session_id, { interval = 5000, maxAttempts = 60 } = {}) => {
+const get_task_status = async (task_id, session_id, { interval = 7000, maxAttempts = 60 } = {}) => {
   for(let attempt = 0; attempt < maxAttempts; attempt++) {
     console.log(`Getting Task Status ${task_id}`)
     const response = await api.get(`${baseUrl}task-status/${task_id}`, {

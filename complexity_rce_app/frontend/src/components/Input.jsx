@@ -26,10 +26,10 @@ const Input = ({onExecute}) => {
             </select>
             Input type: 
             <select defaultValue={input_type} onChange={e => setInput_type(e.target.value)}>
-              <option value="int">Integer</option>
-              <option value="string">String</option>
-              <option value="float">Float</option>
-              <option value="int[]">Integer Array</option>
+              <option value="int">Integer (e.g. 42)</option>
+              <option value="string">String (e.g. egg)</option>
+              <option value="float">Float (e.g. 1.0)</option>
+              <option value="int[]">Integer Array (e.g. 1, 2, 3)</option>
             </select>
             Input:
             <input value={input_value} onChange={e => setInput(e.target.value)}/>
@@ -42,7 +42,7 @@ const Input = ({onExecute}) => {
               </li>
             <li>
               <label>Number of test data points: {number_data_points} </label>
-              <input type="range" value={number_data_points} min="5" max="20" onChange={e => setDataPointNumber(e.target.value)} />
+              <input type="range" value={number_data_points} min="5" max="17" onChange={e => setDataPointNumber(e.target.value)} />
               
             </li>
             </ul>

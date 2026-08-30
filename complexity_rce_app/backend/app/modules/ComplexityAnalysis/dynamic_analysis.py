@@ -15,6 +15,7 @@ def calculate_dynamic_complexity(container, script_path, input_type, number_data
         raise
     
     #Compaaring models with Residual Sum of Squares 
+    print("Fitting model to data:")
     predictions = {}
     for name, model_func, k in [
         #k = number of model parameters -> used for aic
@@ -23,7 +24,13 @@ def calculate_dynamic_complexity(container, script_path, input_type, number_data
         ("polynomial",  polynomial_progression, 3),
          ("exponential",  exponential_progression, 3)
     ]:
-        params, covariance = scipy.optimize.curve_fit(f=model_func,xdata=n, ydata=time, maxfev=1000)
+        p0 = get_initial_guess(name, n, time)
+        try:
+            params, covariance = scipy.optimize.curve_fit(f=model_func,xdata=n, ydata=time, p0=p0, maxfev=1500)
+        except RuntimeError as e:
+            print(f"Model '{name}' failed to converge, skipping: {e}")
+            continue
+        
         y_predicted = [model_func(ni, *params) for ni in n]
         #Using Reverse Square sum to calculate the difference between measured and predicted data
         rss = sum((ti - yi) ** 2 for ti, yi in zip(time, y_predicted))
@@ -45,25 +52,25 @@ def calculate_dynamic_complexity(container, script_path, input_type, number_data
     return dynamicComplexity, dynamic_data_points, params
 
 #TODO: Test length should be up to the user (and the power scaling propably too)
-def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=5):
+def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=5, input_scaling=3):
     try:
         match input_type:
             case "string":
                 values = [(''.join(random.choices(string.ascii_letters + string.digits, 
-                                                  k=int(math.pow(i, 4))))) for i in range(test_length)]
+                                                  k=int(math.pow(i, input_scaling))))) for i in range(test_length)]
                 random.shuffle(values)
                 n = [len(s) for s in values]
             case "int":
-                values = [int(math.pow(i, 5) + random.random()) for i in range(test_length)]
+                values = [int(math.pow(i, input_scaling) + random.random()) for i in range(test_length)]
                 
                 random.shuffle(values)
                 n = [x for x in values]
             case "float":
-                values = [math.pow(i, 5) + random.random() for i in range(test_length)]
+                values = [math.pow(i, input_scaling) + random.random() for i in range(test_length)]
             case "string[]":
                 values = []
                 for i in range (test_length) :
-                    value = [(''.join(random.choices(string.ascii_letters + string.digits, k=int(math.pow(j, 3))))) for j in range(int(math.pow(i + random.random(), 5)))]
+                    value = [(''.join(random.choices(string.ascii_letters + string.digits, k=int(math.pow(j, input_scaling))))) for j in range(int(math.pow(i + random.random(), input_scaling)))]
                     random.shuffle(value)
                     values.append(value)
                     
@@ -72,7 +79,7 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
             case "int[]":
                 values = []
                 for i in range(test_length) :
-                    value = [int(math.pow(j + random.random(), 5)) for j in range(int(math.pow(i + random.random(), 5)))]
+                    value = [int(math.pow(j + random.random(), input_scaling)) for j in range(int(math.pow(i + random.random(), input_scaling)))]
                     random.shuffle(value)
                     values.append(value)
                     
@@ -81,14 +88,14 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
             case "float[]":
                 values = []
                 for i in range(test_length) :
-                    value = [math.pow(j, 5) + random.random() for j in range(int(math.pow(i + random.random(), 5)))]
+                    value = [math.pow(j, input_scaling) + random.random() for j in range(int(math.pow(i + random.random(), input_scaling)))]
                     random.shuffle(value)
                     values.append(value)
                 random.shuffle(values)
                 n = [len(a) for a in values]
             case "adjacency-matrix":
                 values = []
-                for i in range(test_length):
+                for i in range(test_length * input_scaling):
                     matrix = []
                     for y in range(i):
                         row = []
@@ -146,6 +153,7 @@ def reset_environment(container):
     #print(output.decode())
     
 def run_with_input(container_id, script_path, n):
+    print("Running the script" + n)
     proc = subprocess.run(
         ["docker", "exec", "-i", container_id, "python", script_path],
         input=json.dumps(n).encode(),
@@ -156,6 +164,27 @@ def run_with_input(container_id, script_path, n):
     output = json.loads(proc.stdout)
     return output["result"], output["elapsed"]
 
+def get_initial_guess(name, n, time):
+    n = np.asarray(n, dtype=float)
+    time = np.asarray(time, dtype=float)
+
+    if name == "constant":
+        return [np.mean(time)]
+
+    elif name == "logarithmic":
+        safe_n = np.where(n <= 0, 1e-6, n)  #log(0) not defined 
+        a, b = np.polyfit(np.log(safe_n), time, 1)
+        return [a, b]
+
+    elif name == "polynomial":
+        return [1.0, 1.0, float(np.min(time))]
+
+    elif name == "exponential":
+        #Estimate via log-linearization: log(time - c) ≈ log(a) + b*n
+        c0 = max(float(np.min(time)) - 1e-6, 0.0)
+        shifted = np.where(time - c0 <= 0, 1e-9, time - c0)
+        b0, log_a0 = np.polyfit(n, np.log(shifted), 1)
+        return [float(np.exp(log_a0)), float(b0), c0]
 
 #----Complexity Functiions----
 

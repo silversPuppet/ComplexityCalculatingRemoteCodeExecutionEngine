@@ -13,16 +13,17 @@ print("Is Docker Connected: " + str(client.ping()))
 
 user_code_modifiers = {"python":  
 '''\n
-import sys, time, json
+import sys, time, json, os, contextlib
 if __name__ == "__main__":
     n = json.load(sys.stdin)
 
     # actual timed run
     t_start = time.perf_counter()
-    result = main(n)
+    with open(os.devnull, "w") as devnull:
+        with contextlib.redirect_stdout(devnull):
+            result = main(n)
     t_end = time.perf_counter()
     elapsed = t_end - t_start
-
     print(json.dumps({
         "result": result,
         "elapsed": elapsed
