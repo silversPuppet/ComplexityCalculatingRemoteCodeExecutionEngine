@@ -23,7 +23,7 @@ def calculate_dynamic_complexity(container, script_path, input_type, number_data
         ("polynomial",  polynomial_progression, 3),
          ("exponential",  exponential_progression, 3)
     ]:
-        params, covariance = scipy.optimize.curve_fit(f=model_func,xdata=n, ydata=time)
+        params, covariance = scipy.optimize.curve_fit(f=model_func,xdata=n, ydata=time, maxfev=1000)
         y_predicted = [model_func(ni, *params) for ni in n]
         #Using Reverse Square sum to calculate the difference between measured and predicted data
         rss = sum((ti - yi) ** 2 for ti, yi in zip(time, y_predicted))
@@ -51,31 +51,44 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
             case "string":
                 values = [(''.join(random.choices(string.ascii_letters + string.digits, 
                                                   k=int(math.pow(i, 4))))) for i in range(test_length)]
+                random.shuffle(values)
+                n = [len(s) for s in values]
             case "int":
                 values = [int(math.pow(i, 5) + random.random()) for i in range(test_length)]
+                
+                random.shuffle(values)
+                n = [x for x in values]
             case "float":
                 values = [math.pow(i, 5) + random.random() for i in range(test_length)]
             case "string[]":
                 values = []
                 for i in range (test_length) :
-                    value = [(''.join(random.choices(string.ascii_letters + string.digits, k=int(math.pow(j, 3))))) for j in range(i)]
+                    value = [(''.join(random.choices(string.ascii_letters + string.digits, k=int(math.pow(j, 3))))) for j in range(int(math.pow(i + random.random(), 5)))]
                     random.shuffle(value)
                     values.append(value)
+                    
+                random.shuffle(values)
+                n = [len(a) for a in values]
             case "int[]":
                 values = []
                 for i in range(test_length) :
-                    value = [int(math.pow(j + random.random(), 5)) for j in range(i)]
+                    value = [int(math.pow(j + random.random(), 5)) for j in range(int(math.pow(i + random.random(), 5)))]
                     random.shuffle(value)
                     values.append(value)
+                    
+                random.shuffle(values)
+                n = [len(a) for a in values]
             case "float[]":
                 values = []
                 for i in range(test_length) :
-                    value = [math.pow(j, 5) + random.random() for j in range(test_length)]
+                    value = [math.pow(j, 5) + random.random() for j in range(int(math.pow(i + random.random(), 5)))]
                     random.shuffle(value)
                     values.append(value)
+                random.shuffle(values)
+                n = [len(a) for a in values]
             case "adjacency-matrix":
                 values = []
-                for i in range(n):
+                for i in range(test_length):
                     matrix = []
                     for y in range(i):
                         row = []
@@ -84,10 +97,13 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
                         matrix.append(row)
                         
                     values.append(matrix)
+                random.shuffle(values)
+                #number of vertecies in matrix
+                n = [len(m) for m in values]
             case _:
                 #TODO: Possibly allow for not using dynamic measuring?
                 raise ValueError("Input Type not supported!")
-        n, times = fullRun(values, container, script_path)
+        inputs, times = fullRun(values, container, script_path)
         return n, times    
                 
     except:
@@ -95,7 +111,6 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
 
 def fullRun(values, container, script_path):
     try:
-        random.shuffle(values)
         inputs = []
         times = []
         for n in values:
@@ -114,7 +129,6 @@ def medianRunScript(n, container, script_path):
             output, duration = run_with_input(container.short_id, script_path, n)
             values.append((output, duration))
         
-        print(values)
         return sorted(values, key=lambda tupple: tupple[0])[1]
     except:
         raise
@@ -128,8 +142,8 @@ def reset_environment(container):
     # ! -name 'main.py'
     )
 
-    print(exit_code)
-    print(output.decode())
+    #print(exit_code)
+    #print(output.decode())
     
 def run_with_input(container_id, script_path, n):
     proc = subprocess.run(

@@ -27,7 +27,9 @@ const Input = ({onExecute}) => {
             Input type: 
             <select defaultValue={input_type} onChange={e => setInput_type(e.target.value)}>
               <option value="int">Integer</option>
-              <option value="str">String</option>
+              <option value="string">String</option>
+              <option value="float">Float</option>
+              <option value="int[]">Integer Array</option>
             </select>
             Input:
             <input value={input_value} onChange={e => setInput(e.target.value)}/>

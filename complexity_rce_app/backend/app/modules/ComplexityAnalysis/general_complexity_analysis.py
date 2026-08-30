@@ -49,7 +49,7 @@ def start_static_analyser(code, input, input_type):
 def start_dynamic_analyser(container, input, input_type):
     return 
 
-def convert_input_value_to_type(input_value, input_type):
+def convert_input_value_to_type(input_value: str, input_type: str):
     
     #TODO: Expand Type formatting and also format the output in execution.js
     
@@ -58,7 +58,19 @@ def convert_input_value_to_type(input_value, input_type):
             return int(input_value)
         case "str":
             return str(input_value)
+        case "float":
+            return float(input_value)
+        case "int[]":
+            filter_characters = "[] ()"
+            translation_table = str.maketrans("", "",  filter_characters)
+            clean_text = input_value.translate(translation_table)
+            number_list = clean_text.split(",")
+            
+            converted_list = []
+            for number in number_list:
+                converted_list.append(int(number))
+            return converted_list
         case _:
-            return None
+            raise TypeError("Input Type: " + input_type + " not supported!")
 
 

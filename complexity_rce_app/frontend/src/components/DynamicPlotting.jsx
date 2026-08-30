@@ -13,11 +13,13 @@ const DynamicPlotting  = ({complexity_model, params, points}) => {
     const xMin = Math.min(...points[0])
     const xMax = Math.max(...points[0])
 
-    const padding = (xMax - xMin) * 0.1 || 1;
+    const padding = (xMax - xMin) * 0.1 || 1
+    const curveStart = xMin - padding
+    const curveEnd = xMax + padding
 
-    const sampleCount = points[0].length * 10;
+    const sampleCount = points[0].length * 10
 
-    const curveX = Array.from({ length: sampleCount }, (_, i) => (padding * i) / xMax + xMin)
+    const curveX = Array.from({ length: sampleCount },   (_, i) =>curveStart + (curveEnd - curveStart) * (i / (sampleCount - 1)))
 
     const curveY = curveX.map(model_function)
 
