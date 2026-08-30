@@ -13,6 +13,10 @@ function App() {
   const [certainty, setCertainty] = useState(0)
   const [analysisStrength, setAnalysisStrength] = useState("")
 
+  const [estimated_function, setFunction] = useState("constant")
+  const [parameters, setParams] = useState([0.0])
+  const [dataPoints, setDataPoints] = useState([[1, 2, 3, 4, 5] , [0, 0, 0, 0, 0]])
+
   const uuid_hook = () => {
     console.log("effect hook")
     codeExecutionService.get_new_session_id()
@@ -23,8 +27,8 @@ function App() {
 
   useEffect(uuid_hook, []) 
 
-  const executeAnalyseCode = ({code, input_value, input_type, language, analyse_dynamically, analyse_statically}) => {
-      codeExecutionService.start_execute_analysis_task(session_id, code, input_value, input_type, language, analyse_dynamically, analyse_statically)
+  const executeAnalyseCode = ({code, input_value, input_type, language,number_data_points, analyse_dynamically, analyse_statically}) => {
+      codeExecutionService.start_execute_analysis_task(session_id, code, input_value, input_type, language, number_data_points, analyse_dynamically, analyse_statically)
         .then(result => {
           console.log(result)
           setCurrentTask(result.task_id)
@@ -43,6 +47,9 @@ function App() {
             setComplexity(result.complexity)
             setCertainty(result.certainty)
             setAnalysisStrength(result.analysis_strength)
+            setFunction(result.model_function)
+            setParams(result.parameters)
+            setDataPoints(result.dynamic_data_points)
           }else if(response.status === "failed"){
             console.log("Error executing user script:\n" + result)
             setOutput(result)
@@ -67,7 +74,7 @@ function App() {
       <p>Current Task: {currentTask}</p>
       <div className="content">
         <Input onExecute={executeAnalyseCode} />
-        <Output output={output} complexity={complexity} certainty={certainty} analysisStrength={analysisStrength}  />
+        <Output output={output} complexity={complexity} certainty={certainty} analysisStrength={analysisStrength} estimated_function={estimated_function} parameters={parameters} dataPoints={dataPoints} />
       </div>
     </div>
   )

@@ -8,9 +8,9 @@ import string
 
 client = docker.from_env()
 
-def calculate_dynamic_complexity(container, script_path, input_type):
+def calculate_dynamic_complexity(container, script_path, input_type, number_data_points):
     try:
-        n, time = execute_script_with_autogenerate_data(container, script_path, input_type)
+        n, time = execute_script_with_autogenerate_data(container, script_path, input_type, number_data_points)
     except:
         raise
     
@@ -38,12 +38,14 @@ def calculate_dynamic_complexity(container, script_path, input_type):
     print("Best Model: " + best_model)
     
     dynamicComplexity = best_model
-    dynamic_data_points = (n, time)
-    estimated_function = (best_model, predictions[best_model]["params"])
+    dynamic_data_points = [n, time]
+    params = predictions[best_model]["params"].tolist()
+    print(params)
     
-    return dynamicComplexity, dynamic_data_points, estimated_function
+    return dynamicComplexity, dynamic_data_points, params
 
-def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=6):
+#TODO: Test length should be up to the user (and the power scaling propably too)
+def execute_script_with_autogenerate_data(container, script_path, input_type, test_length=5):
     try:
         match input_type:
             case "string":
@@ -86,32 +88,36 @@ def execute_script_with_autogenerate_data(container, script_path, input_type, te
                 #TODO: Possibly allow for not using dynamic measuring?
                 raise ValueError("Input Type not supported!")
         n, times = fullRun(values, container, script_path)
-        print("inputs: " + str(n) + "times " + str(times))
         return n, times    
                 
     except:
         raise
-    return n, time 
 
 def fullRun(values, container, script_path):
-    random.shuffle(values)
-    inputs = []
-    times = []
-    for n in values:
-        result, duration = medianRunScript(n, container, script_path)
-        inputs.append(n)
-        times.append(duration)
-    return inputs, times
+    try:
+        random.shuffle(values)
+        inputs = []
+        times = []
+        for n in values:
+            result, duration = medianRunScript(n, container, script_path)
+            inputs.append(n)
+            times.append(duration)
+        return inputs, times
+    except:
+        raise
         
 def medianRunScript(n, container, script_path):
-    values = []
-    for i in range(3):
-        reset_environment(container)
-        output, duration = run_with_input(container.short_id, script_path, n)
-        values.append((output, duration))
-    
-    print(values)
-    return sorted(values, key=lambda tupple: tupple[0])[1]
+    try:
+        values = []
+        for i in range(3):
+            reset_environment(container)
+            output, duration = run_with_input(container.short_id, script_path, n)
+            values.append((output, duration))
+        
+        print(values)
+        return sorted(values, key=lambda tupple: tupple[0])[1]
+    except:
+        raise
         
 
 def reset_environment(container):

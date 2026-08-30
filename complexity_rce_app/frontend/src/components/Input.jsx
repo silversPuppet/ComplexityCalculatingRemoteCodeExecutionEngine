@@ -7,32 +7,52 @@ const Input = ({onExecute}) => {
     const [language, setLanguage] = useState("python")
     const [analyse_dynamically, setDynamic] = useState(true)
     const [analyse_statically, setStatic] = useState(true)
+    const [number_data_points, setDataPointNumber] = useState(5)
 
     const handleSubmit = (event) => {
       event.preventDefault()
-      onExecute({ code, input_value, input_type, language, analyse_dynamically, analyse_statically})
+      onExecute({ code, input_value, input_type, language,number_data_points, analyse_dynamically, analyse_statically})
     }
 
     return (
     <div>
         <h2>Input</h2>
         <form  onSubmit={handleSubmit}>
-          Language: 
-          <select defaultValue={language} onChange={e => setLanguage(e.target.value)}>
-            <option value="python">Python</option>
-            <option value="c++">c++ (to be added)</option>
-          </select>
-          Input type: 
-          <select defaultValue={input_type} onChange={e => setInput_type(e.target.value)}>
-            <option value="int">Integer</option>
-            <option value="str">String</option>
-          </select>
-          Input:
-          <input value={input_value} onChange={e => setInput(e.target.value)}/>
-          Dynamic Analysis:
-          <input type='checkbox' checked={analyse_dynamically} onChange={e => setDynamic(e.target.checked)} />
-          Static Analysis:
-          <input type='checkbox' checked={analyse_statically}  onChange={e => setStatic(e.target.checked)} />
+          <div>
+            Language: 
+            <select defaultValue={language} onChange={e => setLanguage(e.target.value)}>
+              <option value="python">Python</option>
+              <option value="c++">c++ (to be added)</option>
+            </select>
+            Input type: 
+            <select defaultValue={input_type} onChange={e => setInput_type(e.target.value)}>
+              <option value="int">Integer</option>
+              <option value="str">String</option>
+            </select>
+            Input:
+            <input value={input_value} onChange={e => setInput(e.target.value)}/>
+          </div>
+          <div>
+            <ul>
+              <li>
+              <label>Dynamic Analysis:</label>
+              <input type='checkbox' checked={analyse_dynamically} onChange={e => setDynamic(e.target.checked)} />
+              </li>
+            <li>
+              <label>Number of test data points: {number_data_points} </label>
+              <input type="range" value={number_data_points} min="5" max="20" onChange={e => setDataPointNumber(e.target.value)} />
+              
+            </li>
+            </ul>
+          </div>
+          <div>
+            <ul>
+              <li>
+                <label>Static Analysis:</label>
+                <input type='checkbox' checked={analyse_statically}  onChange={e => setStatic(e.target.checked)} />
+              </li>
+            </ul>
+          </div>
           <button type="submit">Submit</button>
           <br />
           <textarea 

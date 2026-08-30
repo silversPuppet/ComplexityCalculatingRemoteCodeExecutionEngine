@@ -1,7 +1,7 @@
 import subprocess, json
 import app.modules.ComplexityAnalysis.dynamic_analysis as dynamic_analysis
 
-def analyse_full_complexity(container, code, input_value, input_type, analyse_dynamically, analyse_statically):
+def analyse_full_complexity(container, code, input_value, input_type, number_data_points, analyse_dynamically, analyse_statically):
     try:
         #execute user code once to prove it works and further tests are possible 
         script_path="/tmp/main.py"
@@ -11,24 +11,25 @@ def analyse_full_complexity(container, code, input_value, input_type, analyse_dy
         output = result
         complexity = "N/A"
         dynamic_data_points = [(0,0)]
-        estimated_function = "N/A"
+        model_function = "N/A"
         certainty = "0"
         analysis_strength = "extremely weak"
+        parameters = [0.0]
         
         dynamicComplexity = ""
         if(analyse_dynamically):
-            dynamicComplexity, dynamic_data_points, dynamic_function = dynamic_analysis.calculate_dynamic_complexity(container, script_path, input_type)
+            dynamicComplexity, dynamic_data_points, parameters= dynamic_analysis.calculate_dynamic_complexity(container, script_path, input_type, number_data_points)
             analysis_strength = "only dynamically"
-            estimated_function = convert_dynamic_function_to_html(dynamic_function)
+            model_function = dynamicComplexity
+            print(model_function)
             
         if(analyse_statically):
             pass
         
         #combinedComplexity, strength = complexity_comparison()
-        print(dynamicComplexity)
         complexity = dynamicComplexity
         
-        return output, complexity, dynamic_data_points, estimated_function, certainty, analysis_strength
+        return output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters
     except:
         raise 
         

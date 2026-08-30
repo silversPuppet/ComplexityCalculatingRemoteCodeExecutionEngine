@@ -39,7 +39,7 @@ const get_task_status = async (task_id, session_id, { interval = 5000, maxAttemp
   throw new Error(`Task ${task_id} timed out after ${maxAttempts} attempts`)
 };
 
-const start_execute_analysis_task = async (session_id, code, input_value, input_type, language, analyse_dynamically, analyse_statically) => {
+const start_execute_analysis_task = async (session_id, code, input_value, input_type, language,number_data_points, analyse_dynamically, analyse_statically) => {
   try{
     //TODO: Input validation!!!
     console.log(input_value)
@@ -50,6 +50,7 @@ const start_execute_analysis_task = async (session_id, code, input_value, input_
       input_value,
       input_type,
       language,
+      number_data_points,
       analyse_dynamically,
       analyse_statically
     })
