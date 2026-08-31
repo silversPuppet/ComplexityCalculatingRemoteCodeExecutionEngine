@@ -20,6 +20,7 @@ setuptools==84.0.0
 starlette==1.6.0
 sympy==1.14.0
 tree-sitter==0.26.0
+tree-sitter-python==0.25.0
 typing-inspection==0.4.3
 typing_extensions==4.16.0
 urllib3==2.7.0
