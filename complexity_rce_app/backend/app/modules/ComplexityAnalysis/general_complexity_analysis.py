@@ -1,7 +1,8 @@
 import subprocess, json
 import app.modules.ComplexityAnalysis.dynamic_analysis as dynamic_analysis
+import app.modules.ComplexityAnalysis.static_anylsis as static_analysis
 
-def analyse_full_complexity(container, code, input_value, input_type, number_data_points, analyse_dynamically, analyse_statically):
+def analyse_full_complexity(container, code, input_value, input_type, number_data_points, analyse_dynamically, analyse_statically, language):
     try:
         #execute user code once to prove it works and further tests are possible 
         script_path="/tmp/main.py"
@@ -12,8 +13,8 @@ def analyse_full_complexity(container, code, input_value, input_type, number_dat
         complexity = "N/A"
         dynamic_data_points = [(0,0)]
         model_function = "N/A"
-        certainty = "0"
-        analysis_strength = "extremely weak"
+        certainty = "N/A"
+        analysis_strength = "None"
         parameters = [0.0]
         
         dynamicComplexity = ""
@@ -21,23 +22,23 @@ def analyse_full_complexity(container, code, input_value, input_type, number_dat
             dynamicComplexity, dynamic_data_points, parameters= dynamic_analysis.calculate_dynamic_complexity(container, script_path, input_type, number_data_points)
             analysis_strength = "only dynamically"
             model_function = dynamicComplexity
-            print(model_function)
+            complexity = dynamicComplexity
             
         if(analyse_statically):
-            pass
+            staticComplexity, bigONotation = static_analysis.calculate_static_complexity(code, language)
+            if(dynamicComplexity != ""):
+                complexity, certainty = complexity_comparison(dynamicComplexity, staticComplexity)
+                analysis_strength = "dynamically and statically"
+            else:
+                complexity = staticComplexity
+                analysis_strength = "only statically"
         
-        #combinedComplexity, strength = complexity_comparison()
-        complexity = dynamicComplexity
         
         return output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters
     except:
         raise 
         
-def convert_dynamic_function_to_html(function):
-    return "N/A"
-    
-
-def complexity_comparison():
+def complexity_comparison(dynamic, static):
     return
 
 def map_complexity():

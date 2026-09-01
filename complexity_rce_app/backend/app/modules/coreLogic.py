@@ -42,7 +42,8 @@ def execute_and_analyse_userScript(user_execute: communicationClasses.TaskReques
             user_execute.input_type,
             user_execute.number_data_points,
             user_execute.analyse_dynamically,
-            user_execute.analyse_statically
+            user_execute.analyse_statically,
+            user_execute.language
         )
         result.setOutput(output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters)
         container.stop()
