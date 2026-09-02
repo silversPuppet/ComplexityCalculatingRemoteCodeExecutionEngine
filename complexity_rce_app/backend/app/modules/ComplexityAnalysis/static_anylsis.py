@@ -3,12 +3,15 @@
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Tree, Node
 from app.modules.ComplexityAnalysis.complexity_math import complexity_from_depth, max_complexity, multiply_complexity
+from typing import Iterator 
+import re
 
 example_code = """
 def foo(x, y):
-    for i in range(3):
+    while y > 1:
         x += y 
-    return x 
+        y /= 2
+    return x
 """
 
 
@@ -105,7 +108,7 @@ def detect_loops(func_node:Node, known_functions, known_calls):
         if node.type == "function_definition" and node is not func_node:
             return  # don't descend into nested function defs
         if node.type in loop_types:
-            print(node.type)
+            print(node)
             is_constant = is_constant_loop(node)
             is_logarithmic = (not is_constant) and is_logarithmic_loop(node)
 
@@ -125,7 +128,7 @@ def detect_loops(func_node:Node, known_functions, known_calls):
                 "type": node.type,
                 "line": node.start_point[0] + 1,   # start_point is (row, col), 0-indexed
                 "nesting_depth": depth,
-                "estimated_complexity": complexity,
+                "complexity": complexity,
             })
 
             child_depth = current_loop_depth if (is_constant or is_logarithmic) else current_loop_depth + 1
@@ -162,9 +165,35 @@ def is_constant_loop(node: Node):
                         if arg.type != "integer":
                             allLiteral = False
                     if hasArg and allLiteral: return True
+        #Check for `for x in [1, 2, 3]` (literal list)
+        if right is not None and right.type == "list": return True
+        if right is not None and right.type == "tuple": return True
+    return False
+
+                #           some string (+optional space) with either integer division by 2
+                #                                                     float division by 2
+                #                                                     halving via bit shift >>= 1
+                #                                                     doubling
+                #                                                     doubling via bit shift 
+                #                                                                               \b needs to stop right after so no 20 or 2.5
+_LOG_PATTERN = re.compile(r"^[a-zA-Z_]\w*\s*(?://=\s*2|/=\s*2|>>=\s*1|\*=\s*2|<<=\s*1)\b")
     
-def is_logarithmic_loop(node):
-    pass
+def is_logarithmic_loop(node: Node):
+    if node.type != "while_statement":
+        return False
+    for child in iter_nodes(node):
+        print("Type: " + child.type + " text: " + child.text.decode("utf8"))
+        #only accounts for logarithmic loop written like this variable + augmented_assignment operator -> divided or multiplied by 2
+        #it also assumes any such assignment within the while loop is indicative of a logarithmic complexity 
+        if child.type == "augmented_assignment" and _LOG_PATTERN.match(child.text.decode("utf8")):
+            return True
+    return False
+
+def iter_nodes(node: Node) -> Iterator[Node]:
+    yield node
+    for child in node.children:
+        yield from iter_nodes(child)
+    
 
 def detect_recursion(node:Node):
     return "1"

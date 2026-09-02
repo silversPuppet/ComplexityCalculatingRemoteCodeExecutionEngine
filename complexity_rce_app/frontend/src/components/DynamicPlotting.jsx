@@ -39,7 +39,7 @@ const DynamicPlotting  = ({complexity_model, params, points}) => {
           y: points[1],
           type: "scatter",
           mode: "markers",
-          name: "Observed data",
+          name: "Observed",
           marker: {
             size: 8
           }
@@ -65,7 +65,7 @@ const DynamicPlotting  = ({complexity_model, params, points}) => {
       }}
       useResizeHandler
       style={{
-        width: "70%",
+        width: "100%",
         height: "400px"
       }}
     />

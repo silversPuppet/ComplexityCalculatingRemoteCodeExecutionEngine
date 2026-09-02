@@ -16,3 +16,14 @@ div.content {
     flex: 1;
     text-align: left;
 }
+
+/* Stack vertically on smaller screens */
+@media (max-width: 768px) {
+    div.content {
+        flex-direction: column;
+    }
+
+    .content > * {
+        width: 100%;
+    }
+}
