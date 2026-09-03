@@ -8,11 +8,9 @@ import re
 
 example_code = """
 def main(n):
-    x = 1 
-    
-    
-    if(n >= 1):
-        return main(n -1)
+    x += n
+    if(n > 2):
+        return main(n//2)
     return x
 """
 
@@ -251,8 +249,15 @@ def detect_recursion(node:Node, current_complexity):
     
     if total_calls == 0: return current_complexity
     if calls_outside_loops < total_calls: return multiply_complexity(current_complexity, "n")
-    if total_calls == 1: return multiply_complexity(current_complexity, "n")
+    if total_calls == 1: 
+        text = node.text.decode("utf8").replace(" ", "")
+        #Yes this is just a pure text scan which is most often wrong
+        if "//2" in text or "/=2" in text or ">>1" in text or "/2" in text or ">>=1" in text: 
+            return multiply_complexity(current_complexity, "log n")
+        return multiply_complexity(current_complexity, "n")
     if total_calls >= 2:
-        if _LOG_PATTERN.match(node.text.decode("utf8")): return multiply_complexity(current_complexity, "n log n")
+        text = node.text.decode("utf8").replace(" ", "")
+        if "//2" in text or "/=2" in text or ">>1" in text or "/2" in text or ">>=1" in text: 
+            return multiply_complexity(current_complexity, "n log n")
         return multiply_complexity(current_complexity, "n^2")
-            
+        
