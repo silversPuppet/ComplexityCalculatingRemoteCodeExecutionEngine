@@ -8,10 +8,11 @@ import re
 
 example_code = """
 def main(n):
-    x = 0
-    for i in range(n):
-        x = count_total_numbers(x)
-        x += 1
+    x = 1 
+    
+    
+    if(n >= 1):
+        return main(n -1)
     return x
 """
 
@@ -93,6 +94,8 @@ def analyse_function(node:Node, known_functions):
     current_complexity = max_complexity(looped_complexity, known_call_complexity)
     
     recursive_complexity = detect_recursion(node, current_complexity)
+    
+    print(recursive_complexity)
     
     return recursive_complexity
  
@@ -219,5 +222,37 @@ def iter_nodes(node: Node, stopTypes=[]) -> Iterator[Node]:
         yield from iter_nodes(child, stopTypes)
     
 
+    
+# This flat out ignores mutual recursion -> an attempt is made to still do this kind of with detecting child functions, but it's not really solid
 def detect_recursion(node:Node, current_complexity):
-    return current_complexity
+    func_name = node.child_by_field_name("name").text.decode("utf8")
+    total_calls = 0
+    calls_outside_loops = 0
+    
+    def walk(node:Node, in_Loop=False):
+        nonlocal func_name
+        nonlocal total_calls
+        nonlocal calls_outside_loops
+        
+        isLoop = node.type in LOOP_TYPES
+        currentInLoop = in_Loop or isLoop
+        
+        if node is not None and node.type == "call":
+            if node.child_by_field_name("function").text.decode("utf8") == func_name:
+                total_calls += 1
+                if not currentInLoop: calls_outside_loops += 1
+                #If I were to apply akra bazzi it would be right around here.
+                #However, sinc ethe static analyser only outputs, logarithmic, constant, polynomial and exponential the individual variables don't really matter
+                
+        for child in node.children:
+            walk(child)
+    walk(node)
+    print(total_calls)
+    
+    if total_calls == 0: return current_complexity
+    if calls_outside_loops < total_calls: return multiply_complexity(current_complexity, "n")
+    if total_calls == 1: return multiply_complexity(current_complexity, "n")
+    if total_calls >= 2:
+        if _LOG_PATTERN.match(node.text.decode("utf8")): return multiply_complexity(current_complexity, "n log n")
+        return multiply_complexity(current_complexity, "n^2")
+            
