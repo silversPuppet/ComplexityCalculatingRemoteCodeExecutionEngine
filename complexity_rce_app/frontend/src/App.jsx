@@ -76,6 +76,16 @@ function App() {
         <Input onExecute={executeAnalyseCode} />
         <Output output={output} complexity={complexity} certainty={certainty} analysisStrength={analysisStrength} estimated_function={estimated_function} parameters={parameters} dataPoints={dataPoints} />
       </div>
+      <footer>
+        <div class="footer">
+            <h3>Silver's Puppet</h3>
+            <ul>
+              <li><a href="https://github.com/silversPuppet" class="link">GitHub</a></li>
+              <li><a class="link">Contact</a></li>
+              <li><a href="https://github.com/silversPuppet/ComplexityCalculatingRemoteCodeExecutionEngine" class="link">Source code</a></li>
+            </ul>
+        </div>
+      </ footer>
     </div>
   )
 }

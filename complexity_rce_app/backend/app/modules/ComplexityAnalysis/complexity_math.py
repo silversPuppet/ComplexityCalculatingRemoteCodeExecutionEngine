@@ -20,16 +20,34 @@ def multiply_complexity(inner, outer):
     
     multiplication_table = {
         "n*n": "n^2",
-        "n*log n": "n log n",
-        "n*n log n": "n^2",
         "n*n^2": "n^3",
-        "n^2*n": "n^3",
+        "n*n^3": "n^3",
+        
+        "n^2*n^3": "n^3",
+        "n^2*n^2": "n^3",
+        
+        "n^3*n^3": "n^3",
+        
         "log n*n": "n log n",
         "log n*log n": "log n",
+        "log n*n^2": "n^2",
+        "log n*n^3": "n^3",
+        
+        "n log n*n": "n^2",
+        "n log n*n^2": "n^3",
+        "n log n*n^3": "n^3"
     }
     
     key = inner + "*" + outer
     reverseKey = outer + "*" + inner
+    
+    if multiplication_table[key]:
+        return multiplication_table[key]
+    elif multiplication_table[reverseKey]:
+        return multiplication_table[reverseKey]
+    else:
+        return "unkown"
+        
     
 def complexity_from_depth(depth):
     if depth <= 0: return "1"

@@ -1,7 +1,7 @@
 body {
   background-color: #282c34;
   color: white;
-  padding: 40px;
+  padding: 0px;
   font-family: Arial;
   text-align: left;
 }
@@ -27,3 +27,45 @@ div.content {
         width: 100%;
     }
 }
+
+footer{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #282c34;
+    height: auto;
+    width: 100vw;
+    padding-top: 40px;
+    color: white;
+}
+.footer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+}
+
+.footer ul li {
+  margin: 8px 0;
+}
+
+.footer ul a{
+text-decoration:none;
+color:gray;
+transition:0.5s;
+}
+
+
+.footer ul a:hover{
+color:#b759f5;
+}
+
+

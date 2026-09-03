@@ -7,10 +7,11 @@ from typing import Iterator
 import re
 
 example_code = """
-def foo(x, y):
-    while y > 1:
-        x += y 
-        y /= 2
+def main(n):
+    x = 0
+    for i in range(n):
+        x = count_total_numbers(x)
+        x += 1
     return x
 """
 
@@ -36,32 +37,36 @@ def extract_functions(tree: Tree):
     cursor = tree.walk()
     reached_root = False
     
-    function_stack = []
-    functions = [{}]
+    functions = [{
+        "name": "count_total_numbers",
+        "children": [],
+        "complexity": "1",
+        "body": "return x",
+        "node": None  
+    }]
     
     while reached_root == False:    
         node = cursor.node
         if node.type == "function_definition":
             name = node.child_by_field_name("name").text.decode("utf8")
             print("Function found: " + name)
-            parent_function = function_stack[-1] if function_stack else None
             body = node.child_by_field_name("body")
-            complexity = analyse_function(node, known_functions=functions)
+            complexity, children = analyse_function(node, known_functions=functions)
             function = {
                 "name": name,
-                "parent": parent_function,
-                "children": [],
+                "children": children,
                 "complexity": complexity,
                 "body": body,
                 "node": node
             }
             functions.append(function)
+            parent_function = any(child == name for child in function["children"] for function in functions)
             if parent_function:
                 for f in functions:
-                    if f["name"] == parent_function["name"]:
-                        f["children"].append(name)
-                        f["complexity"] = analyse_function(f["node"])
-            function_stack.append(name) #TODO: this is wrong (assumes function definition is child of function call which isn't the case for syntax trees) -> need to identify which function calls which 
+                    for child in f["children"]:
+                        if child == name:
+                            #re analyse function with more known functions 
+                            f["complexity"] = analyse_function(f["node"], known_functions=functions)
         
         if cursor.goto_first_child():
             continue  
@@ -72,9 +77,6 @@ def extract_functions(tree: Tree):
         retracing = True
         while retracing:
             wentToParent = cursor.goto_parent()
-            if cursor.node.type == "function_definition":
-                parent = function_stack.pop()
-                print("Parent removed: " + parent)
             if not wentToParent:
                 retracing = False
                 reached_root = True
@@ -82,24 +84,40 @@ def extract_functions(tree: Tree):
                 retracing = False  
     return functions
 
-def analyse_function(node:Node, known_functions):
-    #used for things like library calls 
-    known_calls = detect_known_calls(node)
-    
-    looped_complexity = detect_loops(node, known_functions, known_calls)
-    
-    recursive_complexity = detect_recursion(node)
-    
-    return looped_complexity + recursive_complexity
- 
-    
+LOOP_TYPES = ["for_statement", "while_statement"]
 
-def detect_known_calls(node:Node):
-    return []    
+def analyse_function(node:Node, known_functions):
+    looped_complexity = detect_loops(node, known_functions)
+    known_call_complexity = detect_known_calls(node, known_functions)
     
-def detect_loops(func_node:Node, known_functions, known_calls):
+    current_complexity = max_complexity(looped_complexity, known_call_complexity)
+    
+    recursive_complexity = detect_recursion(node, current_complexity)
+    
+    return recursive_complexity
+ 
+
+
+def detect_known_calls(node:Node, known_functions):
+    if(known_functions):
+        known_names = [function["name"] for function in known_functions]
+        known_complexities = [function["complexity"] for function in known_functions]
+        highest_complexity = "1"
+        for child in iter_nodes(node, LOOP_TYPES):
+            #Should not detect known functions in sub-loops since the complexity is dependent on the loop -> detect_loops()
+            if child is not None and child.type == "call":
+                print(child)
+                print(child.child_by_field_name("function").text.decode("utf8"))
+                if child.child_by_field_name("function").text.decode("utf8") in known_names:
+                    index = known_names.index(child.child_by_field_name("function").text.decode("utf8"))
+                    if max_complexity(highest_complexity, known_complexities[index]) != highest_complexity:
+                        highest_complexity = known_complexities[index]
+                    
+        return highest_complexity
+    return "1"
+        
+def detect_loops(func_node:Node, known_calls):
     print("Searching for loops in:" + func_node.child_by_field_name("name").text.decode("utf8"))
-    loop_types = ["for_statement", "while_statement"]
     complexity = "1"
     
     loops = []
@@ -107,26 +125,30 @@ def detect_loops(func_node:Node, known_functions, known_calls):
     def walk(node: Node, current_loop_depth):
         if node.type == "function_definition" and node is not func_node:
             return  # don't descend into nested function defs
-        if node.type in loop_types:
+        if node.type in LOOP_TYPES:
             print(node)
             is_constant = is_constant_loop(node)
             is_logarithmic = (not is_constant) and is_logarithmic_loop(node)
+            known_call_complexity = detect_known_calls(node, known_calls)
 
             if is_constant:
                 depth = 0
                 complexity = "1"
+                complexity = multiply_complexity(complexity, known_call_complexity)
             elif is_logarithmic:
                 depth = 0
                 complexity = multiply_complexity(
                     complexity_from_depth(current_loop_depth), "log n"
                 )
+                complexity = multiply_complexity(complexity, known_call_complexity)
             else:
                 depth = current_loop_depth + 1
                 complexity = complexity_from_depth(depth)
+                complexity = multiply_complexity(complexity, known_call_complexity)
                 
             loops.append({
                 "type": node.type,
-                "line": node.start_point[0] + 1,   # start_point is (row, col), 0-indexed
+                "line": node.start_point[0] + 1,
                 "nesting_depth": depth,
                 "complexity": complexity,
             })
@@ -189,11 +211,13 @@ def is_logarithmic_loop(node: Node):
             return True
     return False
 
-def iter_nodes(node: Node) -> Iterator[Node]:
+def iter_nodes(node: Node, stopTypes=[]) -> Iterator[Node]:
     yield node
     for child in node.children:
-        yield from iter_nodes(child)
+        if child.type in stopTypes:
+            continue
+        yield from iter_nodes(child, stopTypes)
     
 
-def detect_recursion(node:Node):
-    return "1"
+def detect_recursion(node:Node, current_complexity):
+    return current_complexity
