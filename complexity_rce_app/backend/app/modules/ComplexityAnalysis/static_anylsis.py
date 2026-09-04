@@ -8,9 +8,12 @@ import re
 
 example_code = """
 def main(n):
-    x += n
-    if(n > 2):
-        return main(n//2)
+    x = 0
+    for i in range(n):
+        x += i + foo(n)
+    return x
+def foo(n):
+    x = n
     return x
 """
 
@@ -29,6 +32,7 @@ def calculate_static_complexity(code=example_code, language="python"):
     for f in functions:
         if f["name"] == "main":
             topComplexity = f["complexity"]
+            print(topComplexity)
     
             
 #Walks dfs through the tree and analyses complexity of functions it finds 
@@ -59,13 +63,14 @@ def extract_functions(tree: Tree):
                 "node": node
             }
             functions.append(function)
-            parent_function = any(child == name for child in function["children"] for function in functions)
+            parent_function = any((child == name for child in function["children"]) for function in functions)
             if parent_function:
                 for f in functions:
                     for child in f["children"]:
                         if child == name:
                             #re analyse function with more known functions 
-                            f["complexity"] = analyse_function(f["node"], known_functions=functions)
+                            parent_complexity, parent_calls = analyse_function(f["node"], known_functions=functions)
+                            f["complexity"] = parent_complexity
         
         if cursor.goto_first_child():
             continue  
@@ -86,16 +91,17 @@ def extract_functions(tree: Tree):
 LOOP_TYPES = ["for_statement", "while_statement"]
 
 def analyse_function(node:Node, known_functions):
-    looped_complexity = detect_loops(node, known_functions)
-    known_call_complexity = detect_known_calls(node, known_functions)
+    looped_complexity, loop_called_functions = detect_loops(node, known_functions)
+    known_call_complexity, regular_calls = detect_known_calls(node, known_functions)
     
     current_complexity = max_complexity(looped_complexity, known_call_complexity)
     
     recursive_complexity = detect_recursion(node, current_complexity)
     
     print(recursive_complexity)
+    called_functions = loop_called_functions + regular_calls
     
-    return recursive_complexity
+    return recursive_complexity, called_functions
  
 
 
@@ -104,6 +110,9 @@ def detect_known_calls(node:Node, known_functions):
         known_names = [function["name"] for function in known_functions]
         known_complexities = [function["complexity"] for function in known_functions]
         highest_complexity = "1"
+        
+        called_names = []
+        called_functions = [{}]
         for child in iter_nodes(node, LOOP_TYPES):
             #Should not detect known functions in sub-loops since the complexity is dependent on the loop -> detect_loops()
             if child is not None and child.type == "call":
@@ -113,8 +122,22 @@ def detect_known_calls(node:Node, known_functions):
                     index = known_names.index(child.child_by_field_name("function").text.decode("utf8"))
                     if max_complexity(highest_complexity, known_complexities[index]) != highest_complexity:
                         highest_complexity = known_complexities[index]
+                    if child.child_by_field_name("function").text.decode("utf8") not in called_names:
+                        called_functions.append(known_functions[index])
+                        called_names.append(child.child_by_field_name("function").text.decode("utf8"))
                     
-        return highest_complexity
+                if child.child_by_field_name("function").text.decode("utf8") not in known_names and child.child_by_field_name("function").text.decode("utf8") not in called_names:
+                    function = {
+                        "name": child.child_by_field_name("function").text.decode("utf8"),
+                        "children": [],
+                        "complexity": "1",
+                        "body": "",
+                        "node": None
+                    }
+                    called_functions.append(function)
+                    called_names.append(child.child_by_field_name("function").text.decode("utf8"))
+        print(called_names)
+        return highest_complexity, called_names
     return "1"
         
 def detect_loops(func_node:Node, known_calls):
@@ -122,16 +145,21 @@ def detect_loops(func_node:Node, known_calls):
     complexity = "1"
     
     loops = []
+    total_called_functions = []
     
     def walk(node: Node, current_loop_depth):
+        nonlocal total_called_functions
         if node.type == "function_definition" and node is not func_node:
             return  # don't descend into nested function defs
         if node.type in LOOP_TYPES:
             print(node)
             is_constant = is_constant_loop(node)
             is_logarithmic = (not is_constant) and is_logarithmic_loop(node)
-            known_call_complexity = detect_known_calls(node, known_calls)
-
+            known_call_complexity, called_functions = detect_known_calls(node, known_calls)
+            
+            total_called_functions = total_called_functions + called_functions
+            
+            #Ignores exponential loops (could search for << or math.exp() in the code but that might be too farfetched?)    
             if is_constant:
                 depth = 0
                 complexity = "1"
@@ -167,7 +195,7 @@ def detect_loops(func_node:Node, known_calls):
     for l in loops:
         if max_complexity(complexity, l["complexity"]) != complexity:
             complexity = l["complexity"]
-    return complexity
+    return complexity, total_called_functions
 
 def is_constant_loop(node: Node):
     print(node)
@@ -259,5 +287,5 @@ def detect_recursion(node:Node, current_complexity):
         text = node.text.decode("utf8").replace(" ", "")
         if "//2" in text or "/=2" in text or ">>1" in text or "/2" in text or ">>=1" in text: 
             return multiply_complexity(current_complexity, "n log n")
-        return multiply_complexity(current_complexity, "n^2")
+        return multiply_complexity(current_complexity, "2^n")
         
