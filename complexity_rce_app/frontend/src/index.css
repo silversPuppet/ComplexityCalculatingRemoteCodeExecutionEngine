@@ -1,7 +1,7 @@
 body {
   background-color: #282c34;
   color: #f4f4ec;
-  padding: 10px;
+  padding: 20px;
   font-family: Arial;
   text-align: left;
 }
@@ -27,19 +27,25 @@ div.content {
         width: 100%;
     }
 }
-.input-parameters{
+.parameters{
     display:grid;
     padding-right: 40%;
+    text-align: left;
+    list-style: none;
+}
+
+.parameters li{
+    margin: 4px 0;
 }
 
 footer{
-    position: relative;
+    position:relative;
     bottom: 0;
     left: 0;
     right: 0;
     height: auto;
     width: 100%;
-    padding-top: 5px;
+    padding-top: 40px;
     color: white;
 }
 .footer{

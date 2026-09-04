@@ -12,13 +12,15 @@ const Output = ({output, complexity, certainty, analysisStrength, estimated_func
     return (
         <div>
             <h2>Output</h2>
-            <div>
-                <label>Code Output:</label>
-                <pre style={{outputStyle}}> {output} </pre>
-            </div>
-            <p>Estimated complexity: {complexity}</p>
-            <p>Certainty in estimate: {certainty} %</p>
-            <p>Analysis strength: {analysisStrength}</p>
+            <ul className="parameters">
+                <li>
+                    <label>Code Output:</label>
+                    <pre style={{outputStyle}}> {output} </pre>
+                </li>
+                <li>Estimated complexity: {complexity}</li>
+                <li>Certainty in estimate: {certainty} %</li>
+                <li>Analysis strength: {analysisStrength}</li>
+            </ul>
             <div>
                 <h3>Dynamic Plotting: </h3>
                 <DynamicPlotting complexity_model={estimated_function} params={parameters} points={dataPoints} />

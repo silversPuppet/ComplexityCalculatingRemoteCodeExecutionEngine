@@ -9,6 +9,10 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8000:8000"
+    env_file:
+      - backend/.env
+
+
   frontend:
     build: ./frontend
     ports:

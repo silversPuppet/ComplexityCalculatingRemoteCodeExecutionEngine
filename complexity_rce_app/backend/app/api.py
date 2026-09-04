@@ -12,7 +12,8 @@ import app.modules.comunicationClasses as comunicationClasses
 app = FastAPI()
 
 origins = [
-    "https://localhost:5173",
+    "http://localhost:5173",
+    #"https://example.com/api"
     #TODO: Change to website domain for production
 ]
 
