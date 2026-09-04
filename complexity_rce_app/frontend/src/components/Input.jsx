@@ -18,11 +18,10 @@ const Input = ({onExecute}) => {
     <div>
         <h2>Input</h2>
         <form  onSubmit={handleSubmit}>
-          <div>
+          <div class="input-parameters">
             Language: 
             <select defaultValue={language} onChange={e => setLanguage(e.target.value)}>
               <option value="python">Python</option>
-              <option value="c++">c++ (to be added)</option>
             </select>
             Input type: 
             <select defaultValue={input_type} onChange={e => setInput_type(e.target.value)}>
@@ -33,35 +32,25 @@ const Input = ({onExecute}) => {
             </select>
             Input:
             <input value={input_value} onChange={e => setInput(e.target.value)}/>
-          </div>
-          <div>
-            <ul>
-              <li>
-              <label>Dynamic Analysis:</label>
+            <div>
+              <label>Dynamic Analysis: </label>
               <input type='checkbox' checked={analyse_dynamically} onChange={e => setDynamic(e.target.checked)} />
-              </li>
-            <li>
-              <label>Number of test data points: {number_data_points} </label>
-              <input type="range" value={number_data_points} min="5" max="17" onChange={e => setDataPointNumber(e.target.value)} />
-              
-            </li>
-            </ul>
-          </div>
-          <div>
-            <ul>
-              <li>
-                <label>Static Analysis:</label>
-                <input type='checkbox' checked={analyse_statically}  onChange={e => setStatic(e.target.checked)} />
-              </li>
-            </ul>
+            </div>
+            <label>Number of test data points: {number_data_points} </label>
+            <input type="range" value={number_data_points} min="5" max="17" onChange={e => setDataPointNumber(e.target.value)} />
+            <div>
+              <label>Static Analysis: </label>
+              <input type='checkbox' checked={analyse_statically}  onChange={e => setStatic(e.target.checked)} />
+            </div>
           </div>
           <button type="submit">Submit</button>
           <br />
           <textarea 
             name="postContent" 
-            rows={17} 
-            cols={57} 
+            rows={19} 
+            cols={52} 
             value={code}
+            maxlength={1500}
             onChange={e => setCode(e.target.value)}
           />
         </form>

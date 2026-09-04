@@ -2,7 +2,7 @@
 
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Tree, Node
-from app.modules.ComplexityAnalysis.complexity_math import complexity_from_depth, max_complexity, multiply_complexity
+from app.modules.ComplexityAnalysis.complexity_math import complexity_from_depth, max_complexity, multiply_complexity, map_static_complexity_to_category
 from typing import Iterator 
 import re
 
@@ -33,7 +33,7 @@ def calculate_static_complexity(code=example_code, language="python"):
         if f["name"] == "main":
             topComplexity = f["complexity"]
     
-    category, degree = max_complexity(topComplexity)
+    category, degree = map_static_complexity_to_category(topComplexity)
     
     return category, degree
             

@@ -48,7 +48,6 @@ def calculate_dynamic_complexity(container, script_path, input_type, number_data
     dynamic_data_points = [n, time]
     params = predictions[best_model]["params"].tolist()
     print(params)
-    
     return dynamicComplexity, dynamic_data_points, params
 
 #TODO: Test length should be up to the user (and the power scaling propably too)
@@ -153,7 +152,6 @@ def reset_environment(container):
     #print(output.decode())
     
 def run_with_input(container_id, script_path, n):
-    print("Running the script" + n)
     proc = subprocess.run(
         ["docker", "exec", "-i", container_id, "python", script_path],
         input=json.dumps(n).encode(),

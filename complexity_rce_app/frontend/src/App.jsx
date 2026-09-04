@@ -70,18 +70,18 @@ function App() {
   return (
     <div>
       <h1>Complexity estimating RCE</h1>
-      <p>Session: {session_id}</p>
-      <p>Current Task: {currentTask}</p>
+      <p>This website attempts to estimate a codes time complexity via empirical measurements and static syntax-tree analysis.</p>
+      <p>A session and task id are given out to keep track of analysis requests. User code is not being stored.</p>
+      <p>Current Task uuid: {currentTask}</p>
       <div className="content">
         <Input onExecute={executeAnalyseCode} />
         <Output output={output} complexity={complexity} certainty={certainty} analysisStrength={analysisStrength} estimated_function={estimated_function} parameters={parameters} dataPoints={dataPoints} />
       </div>
       <footer>
         <div class="footer">
-            <h3>Silver's Puppet</h3>
             <ul>
+              <h4>Silver's Puppet</h4>
               <li><a href="https://github.com/silversPuppet" class="link">GitHub</a></li>
-              <li><a class="link">Contact</a></li>
               <li><a href="https://github.com/silversPuppet/ComplexityCalculatingRemoteCodeExecutionEngine" class="link">Source code</a></li>
             </ul>
         </div>

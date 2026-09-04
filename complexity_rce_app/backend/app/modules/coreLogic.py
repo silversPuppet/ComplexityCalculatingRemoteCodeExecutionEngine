@@ -70,9 +70,8 @@ def create_python_container(user_execute: communicationClasses.TaskRequest):
         container = client.containers.run(
         "python:3.11-slim",
         command="sleep infinity",   
-        #runtime= "runsc", #Hosts Docker Daemon needs to have configured gvisor (doesn't work on macos since gvisor is a linux only binary)
+        runtime= "runsc", #Hosts Docker Daemon needs to have configured gvisor (doesn't work on macos since gvisor is a linux only binary)
         detach=True,
-        #TODO: Uhh Figure out how to use runsc for better isolation
         network_mode="none",
         mem_limit= "128m", #megabites
         memswap_limit= "128m",

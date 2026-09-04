@@ -1,3 +1,5 @@
+import os
+from pydantic_settings import BaseSettings
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI,  Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,21 +12,27 @@ import app.modules.comunicationClasses as comunicationClasses
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
+    "https://localhost:5173",
     #TODO: Change to website domain for production
 ]
 
+class Settings(BaseSettings):
+    session_secret_key: str  
+
+    class Config:
+        env_file = ".env" if os.path.exists(".env") else None
+
+settings = Settings()
 
 executor = ThreadPoolExecutor()
 
-#currently in memory, would TODO: utalize a database for this if we expected many concurrent users 
-tasks_db = {} 
+
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key="secret_key1234567890", # TODO: Yeah this obviously also shouldn'T go into production
-    same_site="none",
-    https_only=True, # TODO: REMOVE THIS IN PRODUCTION: HTTPS requirement disabled for local development (different ports)
+    secret_key=settings.session_secret_key, 
+    same_site="lax",
+    https_only=True, 
 )
 
 app.add_middleware(
@@ -35,6 +43,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+#currently in memory, would TODO: utalize a database for this if we expected many concurrent users 
+tasks_db = {} 
 
 @app.get("/get-session-id/", tags=["session"])
 async def get_session_id(request: Request):

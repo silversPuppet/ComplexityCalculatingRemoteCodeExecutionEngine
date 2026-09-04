@@ -1,7 +1,7 @@
 body {
   background-color: #282c34;
-  color: white;
-  padding: 0px;
+  color: #f4f4ec;
+  padding: 10px;
   font-family: Arial;
   text-align: left;
 }
@@ -27,16 +27,19 @@ div.content {
         width: 100%;
     }
 }
+.input-parameters{
+    display:grid;
+    padding-right: 40%;
+}
 
 footer{
-    position: absolute;
+    position: relative;
     bottom: 0;
     left: 0;
     right: 0;
-    background: #282c34;
     height: auto;
-    width: 100vw;
-    padding-top: 40px;
+    width: 100%;
+    padding-top: 5px;
     color: white;
 }
 .footer{
