@@ -27,13 +27,15 @@ def calculate_static_complexity(code=example_code, language="python"):
         case _:
             raise ValueError("Language " + language + " not supported for static analyser.")
     
-    topComplexity = "0"
+    topComplexity = "unkown"
     functions = extract_functions(tree)
     for f in functions:
         if f["name"] == "main":
             topComplexity = f["complexity"]
-            print(topComplexity)
     
+    category, degree = max_complexity(topComplexity)
+    
+    return category, degree
             
 #Walks dfs through the tree and analyses complexity of functions it finds 
 def extract_functions(tree: Tree):

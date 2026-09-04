@@ -47,6 +47,20 @@ def multiply_complexity(inner, outer):
         return multiplication_table[reverseKey]
     else:
         return "unkown"
+    
+def map_static_complexity_to_category(complexity):
+    categories = {
+        "unkown": ("unkown", 0),
+        "1": ("constant", 1),
+        "n": ("polynomial", 1),
+        "n^2": ("polynomial", 2),
+        "n^3": ("polynomial", 3),
+        "log n": ("logarithmic", 1),
+        "n log n": ("logarithmic", 1),
+        "2^n": ("exponential", 2)
+    }
+    
+    return categories[complexity][0], categories[complexity][1]
         
     
 def complexity_from_depth(depth):

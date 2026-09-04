@@ -25,9 +25,9 @@ def analyse_full_complexity(container, code, input_value, input_type, number_dat
             complexity = dynamicComplexity
             
         if(analyse_statically):
-            staticComplexity, bigONotation = static_analysis.calculate_static_complexity(code, language)
+            staticComplexity, static_degree = static_analysis.calculate_static_complexity(code, language)
             if(dynamicComplexity != ""):
-                complexity, certainty = complexity_comparison(dynamicComplexity, staticComplexity)
+                complexity, certainty = complexity_comparison(dynamicComplexity, staticComplexity, static_degree)
                 analysis_strength = "dynamically and statically"
             else:
                 complexity = staticComplexity
@@ -37,18 +37,25 @@ def analyse_full_complexity(container, code, input_value, input_type, number_dat
         return output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters
     except:
         raise 
+
+COMPLEXITY_ORDER = ["constant", "logarithmic", "polynomial", "exponential"]
         
-def complexity_comparison(dynamic, static):
-    return
+def complexity_comparison(dynamic, static, static_degree):
+    if static != "unkown":
+        distance = abs(COMPLEXITY_ORDER.index(dynamic) - COMPLEXITY_ORDER.index(static))
+        print(distance)
+        if distance == 0:
+            return dynamic, "100"
+        if distance == 1:
+            #Difference between any polynomial function and exponential function is a lot more significant 
+            if dynamic == "exponential" or static == "exponential":
+                return dynamic + " / " + static, "30"
+            return dynamic + " / " + static, "70"
+        if distance >= 2:
+            return dynamic + " / " + static, str(50 // distance)
+    else:
+        return dynamic, "25"
 
-def map_complexity():
-    return
-
-def start_static_analyser(code, input, input_type):
-    return 
-
-def start_dynamic_analyser(container, input, input_type):
-    return 
 
 def convert_input_value_to_type(input_value: str, input_type: str):
     
