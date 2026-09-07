@@ -4,13 +4,13 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
-# npm ci installs packages only from packages.json
+#npm ci installs dependency tree from packages.json
 
 COPY . .
 RUN npm run build
 
 
-#Running
+#Running (Nginx because frontend is static-> no need for node)
 
 FROM nginx:alpine
 

@@ -84,8 +84,7 @@ def create_python_container(user_execute: communicationClasses.TaskRequest):
         
         cap_drop=["ALL"], #No Kernel capabilities
         security_opt=["no-new-privileges:true"],
-    )  
-        
+    )     
         python_input_output_block = user_code_modifiers["python"]
         script_content = user_execute.code + python_input_output_block
         

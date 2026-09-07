@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 const Input = ({onExecute}) => {
-    const [code, setCode] = useState("#necessary for the server to execute user code properly \ndef main(n):\n return n\n")
+    const [code, setCode] = useState("#code needs main(n) function for analysis and execution \ndef main(n):\n return n\n")
     const [input_value, setInput] = useState("0")
     const [input_type, setInput_type] = useState("int")
     const [language, setLanguage] = useState("python")
@@ -39,7 +39,7 @@ const Input = ({onExecute}) => {
               <input value={input_value} onChange={e => setInput(e.target.value)}/>
             </li>
             <li>
-              <label>Dynamic Analysis: </label>
+              <label>Dynamic Analysis (empirical measurements): </label>
               <input type='checkbox' checked={analyse_dynamically} onChange={e => setDynamic(e.target.checked)} />
             </li>
             <li>
@@ -49,7 +49,7 @@ const Input = ({onExecute}) => {
               </div>
             </li>
             <li>
-              <label>Static Analysis: </label>
+              <label>Static Analysis (syntactical): </label>
               <input type='checkbox' checked={analyse_statically}  onChange={e => setStatic(e.target.checked)} />
             </li>
           </ul>

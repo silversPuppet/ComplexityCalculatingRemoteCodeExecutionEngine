@@ -1,5 +1,5 @@
 import uvicorn
-import app.modules.ComplexityAnalysis.static_anylsis as staticAnalysis
+import complexity_rce_app.backend.app.modules.ComplexityAnalysis.static_analysis as staticAnalysis
 
 #This file is used to launch the backend for local development 
 
