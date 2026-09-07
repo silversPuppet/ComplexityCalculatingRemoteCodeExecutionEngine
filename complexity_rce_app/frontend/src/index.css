@@ -4,6 +4,7 @@ body {
   padding: 20px;
   font-family: Arial;
   text-align: left;
+   align-items: center;
 }
 
 /* CONTENT */
@@ -14,7 +15,9 @@ div.content {
 
 .content > * {
     flex: 1;
-    text-align: left;
+    align-items: center;
+    padding-left: 3%;
+    padding-right: 3%;
 }
 
 /* Stack vertically on smaller screens */
@@ -30,7 +33,6 @@ div.content {
 .parameters{
     display:grid;
     padding-right: 40%;
-    text-align: left;
     list-style: none;
 }
 
@@ -45,7 +47,7 @@ footer{
     right: 0;
     height: auto;
     width: 100%;
-    padding-top: 40px;
+    padding-top: 10%;
     color: white;
 }
 .footer{

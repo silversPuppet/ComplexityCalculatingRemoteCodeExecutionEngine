@@ -12,9 +12,8 @@ import app.modules.comunicationClasses as comunicationClasses
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
-    #"https://example.com/api"
-    #TODO: Change to website domain for production
+    #"https://localhost:5173",
+    "https://algorithm-complexity.de"
 ]
 
 class Settings(BaseSettings):
