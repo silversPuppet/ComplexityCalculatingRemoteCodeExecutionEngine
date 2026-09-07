@@ -29,6 +29,7 @@ These limitiations were necessary due to the deployment platform and the resourc
 ## Future considerations 
 
 One might be able to extend the abilities of the static analyser, expand the number of supported languages and inputs and improve the sandboxing technology.
+Additionally one might re evaluate the current "storage" method for the executed tasks and the frontends design. 
 
 <img width="1600" height="601" alt="WebsiteShowcaseImage" src="https://github.com/user-attachments/assets/4d3becbe-a76b-45e4-95f7-c524fe03660e" />
 
