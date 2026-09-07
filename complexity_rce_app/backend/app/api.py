@@ -9,7 +9,7 @@ import uuid
 import app.modules.coreLogic as coreLogic
 import app.modules.comunicationClasses as comunicationClasses
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 origins = [
     #"https://localhost:5173",
