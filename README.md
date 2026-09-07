@@ -1,6 +1,8 @@
 # Complexity Calculating RCE
-
+Website:
 https://algorithm-complexity.de/
+docs:
+https://algorithm-complexity.de/api/docs
 
 This is a personal project with the aim of assisting students and educators when it comes to the topic of the time complexity of algorithms. It implements two approaches for estimating an algorithm's complexity: one module measures the execution time of the provided script in regard to its input size and then tries to fit a function to it.
 The second approach analyzes the syntax trees of languages and calculates the complexity by counting the number and evaluating the structure of operations (loops, recursive calls, etc.). 
