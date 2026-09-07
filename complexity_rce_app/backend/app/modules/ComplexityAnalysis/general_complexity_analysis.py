@@ -1,6 +1,6 @@
 import subprocess, json
 import app.modules.ComplexityAnalysis.dynamic_analysis as dynamic_analysis
-import complexity_rce_app.backend.app.modules.ComplexityAnalysis.static_analysis as static_analysis
+import app.modules.ComplexityAnalysis.static_analysis as static_analysis
 
 def analyse_full_complexity(container, code, input_value, input_type, number_data_points, analyse_dynamically, analyse_statically, language):
     try:
