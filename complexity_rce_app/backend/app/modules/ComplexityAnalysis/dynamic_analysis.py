@@ -135,7 +135,7 @@ def medianRunScript(n, container, script_path):
             output, duration = run_with_input(container.short_id, script_path, n)
             values.append((output, duration))
         
-        return sorted(values, key=lambda tupple: tupple[0])[1]
+        return sorted(values, key=lambda tupple: tupple[1])[1]
     except:
         raise
         
