@@ -17,6 +17,8 @@ function App() {
   const [parameters, setParams] = useState([0.0])
   const [dataPoints, setDataPoints] = useState([[1, 2, 3, 4, 5] , [0, 0, 0, 0, 0]])
 
+  const [loading, setLoading] = useState(false)
+
   const uuid_hook = () => {
     console.log("effect hook")
     codeExecutionService.get_new_session_id()
@@ -38,6 +40,7 @@ function App() {
 
   const getCurrentTaskStatus = (task_id) => {
     try{
+      setLoading(true)
       codeExecutionService.get_task_status(task_id, session_id)
         .then(response => {
           let result = response.result
@@ -59,11 +62,25 @@ function App() {
           }else{
             throw new Error("Task status could not be resolved.")
           }
+          setLoading(false)
         })
         
     }
     catch (error){
       console.log("Failed to acquire task status: ", error)
+    }
+  }
+
+  const Loader = ({active}) => {
+    if(active){
+      return(
+      <div className="loader"></div>
+    )
+    }
+    else{
+      return (
+        <p>No submitted tasks.</p>
+      )
     }
   }
 
@@ -73,6 +90,7 @@ function App() {
       <p>This website attempts to estimate a codes time complexity via empirical measurements and static syntax-tree analysis.</p>
       <p>A session and task id are given out to keep track of analysis requests. User code is not being stored.</p>
       <p>Current Task uuid: {currentTask}</p>
+      <Loader active={loading} />
       <hr></hr>
       <div className="content">
         <Input onExecute={executeAnalyseCode} />
