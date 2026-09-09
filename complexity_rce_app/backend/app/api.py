@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import uuid
 
+import threading
+
 import app.modules.coreLogic as coreLogic
 import app.modules.comunicationClasses as comunicationClasses
 
@@ -24,9 +26,8 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+#Using ThreadPoolExecutioner to handle thread managing (instead of manually with threading)
 executor = ThreadPoolExecutor()
-
-
 
 app.add_middleware(
     SessionMiddleware,
@@ -43,8 +44,11 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-#currently in memory, would TODO: utalize a database for this if we expected many concurrent users 
+#currently in memory, would TODO: utalize a database for this if we expected many concurrent users
+# Since there are not many users auto clearing the dictionary every once in a while should be fine  
 tasks_db = {} 
+# To avoid race condition locking the task
+tasks_lock = threading.Lock()
 
 @app.get("/get-session-id/", tags=["session"])
 async def get_session_id(request: Request):
@@ -58,7 +62,8 @@ async def start_task(data: comunicationClasses.TaskRequest):
     task_id = str(uuid.uuid4())
     print("started task with taskID: " + task_id + "and with data: ")
     print(data)
-    tasks_db[task_id] = {"session_id": data.session_id, "status": "pending", "result": None}
+    with tasks_lock:
+        tasks_db[task_id] = {"session_id": data.session_id, "status": "pending", "result": None}
 
     def run_task():
         print("Running task!" + task_id)
@@ -69,10 +74,20 @@ async def start_task(data: comunicationClasses.TaskRequest):
             print(result)
             tasks_db[task_id]["status"] = "completed"
             tasks_db[task_id]["result"] = result
+            #Deletes Task from dictionary to free up memory after 7 minutes 
+            t = threading.Timer(420, delete_task, args=(task_id,))
+            #needs to be true otherwise python process might shut down
+            t.daemon = True
+            t.start()
+            print("Starting Timer for deleting the task")
         except Exception as e:
             print("caught Exception ")
             tasks_db[task_id]["status"] = "failed"
             tasks_db[task_id]["result"] = str(e)
+            t = threading.Timer(420, delete_task, args=(task_id,))
+            t.daemon = True
+            t.start()
+            print("Starting Timer for deleting the task")
             
 
     executor.submit(run_task)
@@ -80,7 +95,13 @@ async def start_task(data: comunicationClasses.TaskRequest):
 
 @app.get("/task-status/{task_id}", tags=["task"])
 async def get_task_status(task_id: str, session_id: str):
-    task = tasks_db.get(task_id)
+    with tasks_lock:
+        task = tasks_db.get(task_id)
     if not task or task["session_id"] != session_id:
         return {"error": "Task not found or unauthorized"}
     return task
+
+def delete_task(task_id):
+    print("Deleting Task: " + task_id)
+    with tasks_lock:
+        tasks_db.pop(task_id, None)

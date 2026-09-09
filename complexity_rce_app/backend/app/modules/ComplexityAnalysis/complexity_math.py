@@ -46,7 +46,7 @@ def multiply_complexity(inner, outer):
     elif multiplication_table[reverseKey]:
         return multiplication_table[reverseKey]
     else:
-        return "unkown"
+        return "unknown"
     
 def map_static_complexity_to_category(complexity):
     categories = {

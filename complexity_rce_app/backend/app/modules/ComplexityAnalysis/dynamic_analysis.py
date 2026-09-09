@@ -156,6 +156,7 @@ def run_with_input(container_id, script_path, n):
         ["docker", "exec", "-i", container_id, "python", script_path],
         input=json.dumps(n).encode(),
         capture_output=True,
+        timeout=180 #3 Minutes as max subprocess runtime (avoids while true: consuming all server resources)
     )
     if proc.returncode != 0:
         raise RuntimeError(proc.stderr.decode())
