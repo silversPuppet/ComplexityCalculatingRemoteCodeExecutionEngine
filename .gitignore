@@ -36,6 +36,8 @@ dist-ssr
 *.sln
 *.sw?
 
+.pytest_cache
+
 typings
 
 .env

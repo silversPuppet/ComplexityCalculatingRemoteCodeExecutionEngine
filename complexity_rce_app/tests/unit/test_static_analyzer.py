@@ -1,5 +1,4 @@
-import unittest
-from backend.app.modules.ComplexityAnalysis.static_analysis import calculate_static_complexity
+from backend.app.modules.ComplexityAnalysis import static_analysis
 
 function_call_example_code = """
 def main(n):
@@ -16,12 +15,10 @@ def main(n):
     return n
 """
 
+def test_finding_main():
+    category, degree = static_analysis.calculate_static_complexity(finding_main_example_code)
+    assert category == "constant"
 
-class TestCalculateStaticComplexity(unittest.TestCase):
-    def test_finding_main(self):
-        category, degree = calculate_static_complexity(finding_main_example_code)
-        self.assertEqual(category, "constant")
-
-    def test_function_call(self):
-        category, degree = calculate_static_complexity(function_call_example_code)
-        self.assertEqual(category, "polynomial")
+def test_function_call():
+    category, degree = static_analysis.calculate_static_complexity(function_call_example_code)
+    assert category == "polynomial"
