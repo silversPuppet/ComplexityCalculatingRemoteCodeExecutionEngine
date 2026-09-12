@@ -4,8 +4,8 @@ from docker.errors import APIError, ImageNotFound
 import tarfile 
 import io
 import time
-import app.modules.ComplexityAnalysis.general_complexity_analysis as general_complexity_analysis
-import app.modules.comunicationClasses as communicationClasses
+import backend.app.modules.ComplexityAnalysis.general_complexity_analysis as general_complexity_analysis
+import backend.app.modules.comunicationClasses as communicationClasses
 import base64
 
 client = docker.from_env()
