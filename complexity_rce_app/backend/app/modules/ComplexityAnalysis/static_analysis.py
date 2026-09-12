@@ -2,7 +2,7 @@
 
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Tree, Node
-from backend.app.modules.ComplexityAnalysis.complexity_math import complexity_from_depth, max_complexity, multiply_complexity, map_static_complexity_to_category
+from app.modules.ComplexityAnalysis.complexity_math import complexity_from_depth, max_complexity, multiply_complexity, map_static_complexity_to_category
 from typing import Iterator 
 import re
 

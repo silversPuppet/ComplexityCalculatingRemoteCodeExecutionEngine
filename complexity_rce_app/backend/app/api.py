@@ -8,8 +8,8 @@ import uuid
 
 import threading
 
-import backend.app.modules.coreLogic as coreLogic
-import backend.app.modules.comunicationClasses as comunicationClasses
+import app.modules.coreLogic as coreLogic
+import app.modules.comunicationClasses as comunicationClasses
 
 app = FastAPI(root_path="/api")
 
