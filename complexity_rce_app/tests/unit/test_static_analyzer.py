@@ -15,6 +15,9 @@ def main(n):
     return n
 """
 
+missing_code = """
+"""
+
 def test_finding_main():
     category, degree = static_analysis.calculate_static_complexity(finding_main_example_code)
     assert category == "constant"
@@ -22,3 +25,7 @@ def test_finding_main():
 def test_function_call():
     category, degree = static_analysis.calculate_static_complexity(function_call_example_code)
     assert category == "polynomial"
+    
+def test_missing_code():
+    category, degree = static_analysis.calculate_static_complexity(missing_code)
+    assert category == "unkown"

@@ -6,7 +6,6 @@ def analyse_full_complexity(container, code, input_value, input_type, number_dat
     try:
         #execute user code once to prove it works and further tests are possible 
         script_path="/tmp/main.py"
-        print("executing User script")
         result, elapsed = dynamic_analysis.run_with_input(container.short_id, script_path, convert_input_value_to_type(input_value, input_type))
         
         output = result
@@ -26,12 +25,13 @@ def analyse_full_complexity(container, code, input_value, input_type, number_dat
             
         if(analyse_statically):
             staticComplexity, static_degree = static_analysis.calculate_static_complexity(code, language)
-            if(dynamicComplexity != ""):
-                complexity, certainty = complexity_comparison(dynamicComplexity, staticComplexity, static_degree)
-                analysis_strength = "dynamically and statically"
-            else:
-                complexity = staticComplexity
-                analysis_strength = "only statically"
+            if staticComplexity != "unkown":
+                if(dynamicComplexity != ""):
+                    complexity, certainty = complexity_comparison(dynamicComplexity, staticComplexity, static_degree)
+                    analysis_strength = "dynamically and statically"
+                else:
+                    complexity = staticComplexity
+                    analysis_strength = "only statically"
         
         
         return output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters
@@ -43,7 +43,6 @@ COMPLEXITY_ORDER = ["constant", "logarithmic", "polynomial", "exponential"]
 def complexity_comparison(dynamic, static, static_degree):
     if static != "unkown":
         distance = abs(COMPLEXITY_ORDER.index(dynamic) - COMPLEXITY_ORDER.index(static))
-        print(distance)
         if distance == 0:
             return dynamic, "100"
         if distance == 1:

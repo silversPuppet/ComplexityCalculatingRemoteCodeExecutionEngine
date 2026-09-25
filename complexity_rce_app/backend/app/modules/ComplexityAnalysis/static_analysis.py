@@ -1,5 +1,4 @@
 #static analyser heavily derived from Luzgans approach for tree-sitter https://github.com/Luzgan/time-complexity-mcp/blob/main/src/
-
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Tree, Node
 from app.modules.ComplexityAnalysis.complexity_math import complexity_from_depth, max_complexity, multiply_complexity, map_static_complexity_to_category
@@ -32,6 +31,9 @@ def calculate_static_complexity(code=example_code, language="python"):
     for f in functions:
         if f["name"] == "main":
             topComplexity = f["complexity"]
+            
+    if topComplexity == "unkown":
+        return topComplexity, 0
     
     category, degree = map_static_complexity_to_category(topComplexity)
     
@@ -54,7 +56,6 @@ def extract_functions(tree: Tree):
         node = cursor.node
         if node.type == "function_definition":
             name = node.child_by_field_name("name").text.decode("utf8")
-            print("Function found: " + name)
             body = node.child_by_field_name("body")
             complexity, children = analyse_function(node, known_functions=functions)
             function = {
@@ -100,7 +101,6 @@ def analyse_function(node:Node, known_functions):
     
     recursive_complexity = detect_recursion(node, current_complexity)
     
-    print(recursive_complexity)
     called_functions = loop_called_functions + regular_calls
     
     return recursive_complexity, called_functions
@@ -118,8 +118,6 @@ def detect_known_calls(node:Node, known_functions):
         for child in iter_nodes(node, LOOP_TYPES):
             #Should not detect known functions in sub-loops since the complexity is dependent on the loop -> detect_loops()
             if child is not None and child.type == "call":
-                print(child)
-                print(child.child_by_field_name("function").text.decode("utf8"))
                 if child.child_by_field_name("function").text.decode("utf8") in known_names:
                     index = known_names.index(child.child_by_field_name("function").text.decode("utf8"))
                     if max_complexity(highest_complexity, known_complexities[index]) != highest_complexity:
@@ -138,12 +136,10 @@ def detect_known_calls(node:Node, known_functions):
                     }
                     called_functions.append(function)
                     called_names.append(child.child_by_field_name("function").text.decode("utf8"))
-        print(called_names)
         return highest_complexity, called_names
     return "1"
         
 def detect_loops(func_node:Node, known_calls):
-    print("Searching for loops in:" + func_node.child_by_field_name("name").text.decode("utf8"))
     complexity = "1"
     
     loops = []
@@ -154,7 +150,6 @@ def detect_loops(func_node:Node, known_calls):
         if node.type == "function_definition" and node is not func_node:
             return  # don't descend into nested function defs
         if node.type in LOOP_TYPES:
-            print(node)
             is_constant = is_constant_loop(node)
             is_logarithmic = (not is_constant) and is_logarithmic_loop(node)
             known_call_complexity, called_functions = detect_known_calls(node, known_calls)
@@ -193,18 +188,15 @@ def detect_loops(func_node:Node, known_calls):
             walk(child, current_loop_depth)
             
     walk(func_node, 0)
-    print(loops)
     for l in loops:
         if max_complexity(complexity, l["complexity"]) != complexity:
             complexity = l["complexity"]
     return complexity, total_called_functions
 
 def is_constant_loop(node: Node):
-    print(node)
     if node.type == "for_statement":
         right = node.child_by_field_name("right")
         if right is not None and right.type == "call":
-            print(right)
             funcNode = right.child_by_field_name("function")
             if funcNode is not None and funcNode.type == "identifier" and funcNode.text.decode("utf8") == "range":
                 args = right.child_by_field_name("arguments")
@@ -235,7 +227,6 @@ def is_logarithmic_loop(node: Node):
     if node.type != "while_statement":
         return False
     for child in iter_nodes(node):
-        print("Type: " + child.type + " text: " + child.text.decode("utf8"))
         #only accounts for logarithmic loop written like this variable + augmented_assignment operator -> divided or multiplied by 2
         #it also assumes any such assignment within the while loop is indicative of a logarithmic complexity 
         if child.type == "augmented_assignment" and _LOG_PATTERN.match(child.text.decode("utf8")):
@@ -275,7 +266,6 @@ def detect_recursion(node:Node, current_complexity):
         for child in node.children:
             walk(child)
     walk(node)
-    print(total_calls)
     
     if total_calls == 0: return current_complexity
     if calls_outside_loops < total_calls: return multiply_complexity(current_complexity, "n")

@@ -24,12 +24,10 @@ class ExecutionAnalysisOutput():
     session_id: str
     
     def __init__(self, session_id, task_id):
-        print("Session ID:" + session_id + " Task ID: " + task_id)
         self.session_id = session_id
         self.task_id = task_id
 
     def setOutput(self, output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters):
-        print(dynamic_data_points)
         self.output = output
         self.complexity = complexity
         self.dynamic_data_points = dynamic_data_points

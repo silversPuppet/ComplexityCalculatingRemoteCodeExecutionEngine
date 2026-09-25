@@ -10,12 +10,22 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - backend/.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     build: ./frontend
     restart: unless-stopped
     depends_on:
       - backend
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   caddy:
       image: caddy:2-alpine
@@ -30,6 +40,11 @@ services:
         - frontend
         - backend
       restart: unless-stopped
+      logging:
+        driver: json-file
+        options:
+          max-size: "10m"
+          max-file: "3"
 
 volumes:
   caddy_data:

@@ -87,8 +87,10 @@ function App() {
   return (
     <div>
       <h1>Complexity estimating RCE</h1>
-      <p>This website attempts to estimate a codes time complexity via empirical measurements and static syntax-tree analysis.</p>
-      <p>A session and task id are given out to keep track of analysis requests. User code is not being stored.</p>
+      <p>Analyse your runtime complexity with the dynamic or static analysis tool.</p>
+      <p>The dynamic analysis measures and plots your code's actual execution time while the static analysis walks and analyses its syntax tree.</p>
+      <p>The service temporarily processes source code submitted by users to perform the requested analysis. A randomly generated identifier is used to retrieve the analysis result. Submitted source code and analysis data are automatically deleted no later than seven minutes after creation.
+      The application does not use analytics or advertising services and does not intentionally store visitors' IP addresses. The website is operated on a VPS provided by netcup GmbH. Technical connection data may be processed by the server infrastructure for the operation and security of the service.</p>
       <p>Current Task uuid: {currentTask}</p>
       <Loader active={loading} />
       <hr></hr>
@@ -102,6 +104,7 @@ function App() {
               <h4>Silver's Puppet</h4>
               <li><a href="https://github.com/silversPuppet" className="link">GitHub</a></li>
               <li><a href="https://github.com/silversPuppet/ComplexityCalculatingRemoteCodeExecutionEngine" className="link">Source code</a></li>
+              <li>For Inquiries please contact me at: algorithm-complexity [dot] recycling497 [at] passinbox [dot] com</li>
             </ul>
         </div>
       </ footer>

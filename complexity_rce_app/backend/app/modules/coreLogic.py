@@ -9,7 +9,6 @@ import app.modules.comunicationClasses as communicationClasses
 import base64
 
 client = docker.from_env()
-print("Is Docker Connected: " + str(client.ping()))  
 
 user_code_modifiers = {"python":  
 '''\n
@@ -31,10 +30,8 @@ if __name__ == "__main__":
 
 def execute_and_analyse_userScript(user_execute: communicationClasses.TaskRequest, session_id, task_id):
     try:
-        print("Creating Container")
         container = create_contrainer(user_execute)
         result = communicationClasses.ExecutionAnalysisOutput(session_id, task_id)
-        print("starting complexity analysis")
         output, complexity, dynamic_data_points, model_function, certainty, analysis_strength, parameters = general_complexity_analysis.analyse_full_complexity(
             container, 
             user_execute.code, 
@@ -65,7 +62,6 @@ def create_contrainer(user_execute):
             raise ValueError
         
 def create_python_container(user_execute: communicationClasses.TaskRequest):
-    print("creating container with python.")    
     try:
         container = client.containers.run(
         "python:3.11-slim",
@@ -99,7 +95,6 @@ def create_python_container(user_execute: communicationClasses.TaskRequest):
         container.exec_run(write_command)
         #Why write command possible if read_only=true ? readonly applies only to the root file system -> sub-directory /tmp allows file writing 
 
-        print("Finished creating and filling container.")
         return container 
     except APIError as e:
         container.stop()

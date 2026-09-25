@@ -60,18 +60,15 @@ async def get_session_id(request: Request):
 @app.post("/start-execute-analysis-task/", tags=["task"])
 async def start_task(data: comunicationClasses.TaskRequest):
     task_id = str(uuid.uuid4())
-    print("started task with taskID: " + task_id + "and with data: ")
-    print(data)
+    print("started task with taskID: " + task_id)
     with tasks_lock:
         tasks_db[task_id] = {"session_id": data.session_id, "status": "pending", "result": None}
 
     def run_task():
         print("Running task!" + task_id)
         try:
-            print(data)
             result = coreLogic.execute_and_analyse_userScript(data, data.session_id, task_id)
             print("completed task! " + task_id)
-            print(result)
             tasks_db[task_id]["status"] = "completed"
             tasks_db[task_id]["result"] = result
             #Deletes Task from dictionary to free up memory after 7 minutes 
