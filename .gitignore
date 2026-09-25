@@ -41,3 +41,5 @@ dist-ssr
 typings
 
 .env
+*
+.mypy_cache

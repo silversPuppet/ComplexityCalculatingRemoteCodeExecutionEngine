@@ -1,5 +1,6 @@
 import os
-from pydantic_settings import BaseSettings
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI,  Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,16 +15,19 @@ import app.modules.comunicationClasses as comunicationClasses
 app = FastAPI(root_path="/api")
 
 origins = [
-    #"https://localhost:5173",
-    "https://algorithm-complexity.de"
+    "https://localhost:5173",
+    #"https://algorithm-complexity.de"
 ]
+ENV_FILE_PATH = Path(__file__).resolve().parent / ".env"
 
 class Settings(BaseSettings):
     session_secret_key: str  
-
-    class Config:
-        env_file = ".env" if os.path.exists(".env") else None
-
+    model_config = SettingsConfigDict(
+        env_file=ENV_FILE_PATH, 
+        env_file_encoding="utf-8", 
+        extra="ignore"
+    )
+        
 settings = Settings()
 
 #Using ThreadPoolExecutioner to handle thread managing (instead of manually with threading)
