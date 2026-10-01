@@ -1,6 +1,5 @@
 import axios from 'axios'
 
-//const baseUrl = 'http://localhost:8000/' //testing with npm run dev
 const baseUrl = '/api/' //Docker Container 
 
 const api = axios.create({

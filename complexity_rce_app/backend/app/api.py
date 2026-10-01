@@ -1,6 +1,4 @@
 import os
-from pathlib import Path
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI,  Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,24 +9,12 @@ import threading
 
 import app.modules.coreLogic as coreLogic
 import app.modules.comunicationClasses as comunicationClasses
+from app.modules.config import settings
 
 app = FastAPI(root_path="/api")
 
-origins = [
-    "https://localhost:5173",
-    #"https://algorithm-complexity.de"
-]
-ENV_FILE_PATH = Path(__file__).resolve().parent / ".env"
+#origins = ["https://localhost:5173",#"https://algorithm-complexity.de"]
 
-class Settings(BaseSettings):
-    session_secret_key: str  
-    model_config = SettingsConfigDict(
-        env_file=ENV_FILE_PATH, 
-        env_file_encoding="utf-8", 
-        extra="ignore"
-    )
-        
-settings = Settings()
 
 #Using ThreadPoolExecutioner to handle thread managing (instead of manually with threading)
 executor = ThreadPoolExecutor()
@@ -42,10 +28,10 @@ app.add_middleware(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    allow_origins=settings.cors_origins,
 )
 
 #currently in memory, would TODO: utalize a database for this if we expected many concurrent users

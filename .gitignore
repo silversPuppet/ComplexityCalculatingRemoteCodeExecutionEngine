@@ -1,10 +1,8 @@
 /DesignDocs
 /.DS_Store
-/complexity_rce_app/backend/venv
-/complexity_rce_app/backend/venv/
+venv
+venv/
 /.vscode
-/complexity_rce_app/backend/__pycache__
-/complexity_rce_app/backend/app/__pycache__
 __pycache__
 shell.nix
 /shell.nix

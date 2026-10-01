@@ -7,6 +7,7 @@ import time
 import app.modules.ComplexityAnalysis.general_complexity_analysis as general_complexity_analysis
 import app.modules.comunicationClasses as communicationClasses
 import base64
+from app.modules.config import settings
 
 client = docker.from_env()
 
@@ -66,7 +67,7 @@ def create_python_container(user_execute: communicationClasses.TaskRequest):
         container = client.containers.run(
         "python:3.11-slim",
         command="sleep infinity",   
-        runtime= "runsc", #Hosts Docker Daemon needs to have configured gvisor (doesn't work on macos since gvisor is a linux only binary)
+        runtime= settings.docker_runtime, #Hosts Docker Daemon needs to have configured gvisor (runsc (settings defualt)doesn't work on macos since gvisor is a linux only binary)
         detach=True,
         network_mode="none",
         mem_limit= "128m", #megabites
